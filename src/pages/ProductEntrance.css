@@ -1,0 +1,365 @@
+.entrance {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  background: var(--color-canvas);
+}
+
+.entrance-container {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-inline: 32px;
+
+  @media (max-width: 768px) {
+    padding-inline: 20px;
+  }
+}
+
+/* Navigation */
+
+.entrance-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-surface-1);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.entrance-nav-inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.entrance-wordmark {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--color-primary);
+}
+
+.entrance-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+
+  a {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-text-primary);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--color-primary-focus);
+      outline-offset: 3px;
+      border-radius: var(--radius-xs);
+    }
+  }
+}
+
+.entrance-nav-cta {
+  color: var(--color-primary) !important;
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-1);
+
+  &:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-primary-soft);
+  }
+}
+
+/* Hero */
+
+.entrance-hero {
+  padding-top: 88px;
+  padding-bottom: 64px;
+
+  @media (max-width: 768px) {
+    padding-top: 56px;
+    padding-bottom: 40px;
+  }
+}
+
+.entrance-hero-inner {
+  text-align: center;
+  max-width: 720px;
+}
+
+.entrance-hero h1 {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  color: var(--color-text-primary);
+  margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+    letter-spacing: -0.4px;
+  }
+}
+
+.entrance-hero-description {
+  margin: 24px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.entrance-hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Buttons */
+
+.entrance-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-focus);
+    outline-offset: 2px;
+  }
+}
+
+.entrance-btn-primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+
+  &:hover {
+    background: var(--color-primary-hover);
+  }
+}
+
+.entrance-btn-secondary {
+  background: var(--color-surface-1);
+  color: var(--color-primary);
+  border-color: var(--color-border);
+
+  &:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-primary-soft);
+  }
+}
+
+/* Safety Inbox preview */
+
+.entrance-preview {
+  max-width: 640px;
+  margin: 56px auto 0;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: left;
+}
+
+.entrance-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.entrance-preview-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.entrance-preview-tag {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+}
+
+.entrance-preview-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.entrance-preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  @media (max-width: 480px) {
+    align-items: flex-start;
+  }
+}
+
+.entrance-preview-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.entrance-preview-drug {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.entrance-preview-meta {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.entrance-mono {
+  font-family: var(--font-mono);
+}
+
+.entrance-badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.entrance-badge-warning {
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+}
+
+.entrance-badge-info {
+  color: var(--color-info);
+  background: var(--color-info-soft);
+}
+
+.entrance-badge-success {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+/* Workflow */
+
+.entrance-workflow {
+  padding: 64px 0;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-1);
+
+  @media (max-width: 768px) {
+    padding: 40px 0;
+  }
+}
+
+.entrance-workflow h2 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--color-text-primary);
+  text-align: center;
+  margin: 0 0 40px;
+  max-width: 560px;
+  margin-inline: auto;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+    margin-bottom: 28px;
+  }
+}
+
+.entrance-workflow-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  li {
+    padding: 24px;
+    background: var(--color-canvas);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+}
+
+.entrance-workflow-step-index {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-secondary);
+  margin-bottom: 12px;
+}
+
+.entrance-workflow-steps h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 8px;
+}
+
+.entrance-workflow-steps p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Final CTA */
+
+.entrance-final-cta {
+  padding: 64px 0 88px;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    padding: 40px 0 56px;
+  }
+}
+
+.entrance-final-cta h2 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--color-text-primary);
+  margin: 0 0 24px;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+}
