@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { isInventoryMatched } from '../api/types'
 import { useTicketPreview } from '../hooks/useTicketPreview'
 import {
   formatReviewType,
@@ -86,7 +87,7 @@ function TicketPreview({ ticketId }: TicketPreviewProps) {
             {inventory.kind === 'unavailable' && 'Not yet available'}
             {inventory.kind === 'error' && <span className="ticket-preview-error">Couldn't load</span>}
             {inventory.kind === 'ready' &&
-              (inventory.data.matched
+              (isInventoryMatched(inventory.data)
                 ? `${inventory.data.impact_result.total_quantity} units across ${inventory.data.impact_result.affected_departments.length || 0} dept(s)`
                 : 'No inventory match')}
           </dd>
