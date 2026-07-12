@@ -3,6 +3,7 @@
 // between them with a single env flag. Never imported directly by pages/components.
 import { ApiError } from './client'
 import type {
+  AuditLogEntry,
   EvidenceSnapshot,
   InventoryImpact,
   TicketDetail,
@@ -206,6 +207,73 @@ const MOCK_INVENTORY: Record<string, InventoryImpact> = {
   },
 }
 
+const MOCK_AUDIT: Record<string, AuditLogEntry[]> = {
+  'T-2381': [
+    {
+      ticket_id: 'T-2381',
+      step_name: 'inventory_match',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-11T12:02:00.000000',
+      duration_ms: 120,
+      title: 'Inventory Match',
+      message: 'Inventory Match completed successfully.',
+      severity: 'info',
+      status: 'succeeded',
+    },
+    {
+      ticket_id: 'T-2381',
+      step_name: 'evidence_retrieval',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-11T12:02:02.000000',
+      duration_ms: 340,
+      title: 'Evidence Retrieval',
+      message: 'Evidence Retrieval completed successfully.',
+      severity: 'info',
+      status: 'succeeded',
+    },
+    {
+      ticket_id: 'T-2381',
+      step_name: 'policy_aggregation',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-11T12:02:05.000000',
+      duration_ms: 15,
+      title: 'Policy Aggregation',
+      message: 'Routed to final_approval.',
+      severity: 'info',
+      status: 'succeeded',
+    },
+  ],
+  'T-2368': [
+    {
+      ticket_id: 'T-2368',
+      step_name: 'inventory_match',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-09T22:05:30.000000',
+      duration_ms: 100,
+      title: 'Inventory Match',
+      message: 'Inventory Match completed successfully.',
+      severity: 'info',
+      status: 'succeeded',
+    },
+    {
+      ticket_id: 'T-2368',
+      step_name: 'evidence_retrieval',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-09T22:06:00.000000',
+      duration_ms: 500,
+      title: 'Evidence Retrieval',
+      message: 'Evidence Retrieval failed: Milvus unavailable.',
+      severity: 'error',
+      status: 'failed',
+    },
+  ],
+}
+
 function matchesFilters(ticket: TicketListItem, filters: TicketListFilters): boolean {
   if (filters.status && ticket.status !== filters.status) return false
   if (filters.review_type && ticket.review_type !== filters.review_type) return false
@@ -247,4 +315,10 @@ export function getInventoryImpact(ticketId: string): Promise<InventoryImpact> {
   const inventory = MOCK_INVENTORY[ticketId]
   if (!inventory) return Promise.reject(new ApiError(404, `No inventory impact for ${ticketId}`))
   return delay(inventory)
+}
+
+export function getTicketAudit(ticketId: string): Promise<AuditLogEntry[]> {
+  const audit = MOCK_AUDIT[ticketId]
+  if (!audit) return Promise.reject(new ApiError(404, `No audit trail for ${ticketId}`))
+  return delay(audit)
 }

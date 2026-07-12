@@ -18,7 +18,7 @@ const TABS: { id: TabId; label: string }[] = [
 ]
 
 // ── Dummy data placeholders ──────────────────────────────────────────
-// report/history are not wired to the backend yet (that's the next PR).
+// report is not wired to the backend yet (being handled separately in #12).
 // Shape mirrors docs/api.md so swapping in real fetches later is a
 // drop-in replacement, not a rewrite.
 const DUMMY_REPORT = {
@@ -27,11 +27,6 @@ const DUMMY_REPORT = {
   recommended_review_action: 'Pending API integration.',
   citations_count: 0,
 }
-
-const DUMMY_HISTORY = [
-  { title: 'Ticket created', severity: 'info', status: 'succeeded', message: 'Placeholder audit entry.' },
-  { title: 'Workflow step', severity: 'info', status: 'succeeded', message: 'Real audit trail pending /audit/{ticket_id} integration.' },
-]
 
 // ── Tab content components ───────────────────────────────────────────
 
@@ -205,7 +200,7 @@ function EvidenceTab({ evidence }: { evidence: ReturnType<typeof useTicketPrevie
 }
 
 function ReportTab() {
-  // Dummy until /reports/{ticket_id} is wired up.
+  // Dummy until /reports/{ticket_id} is wired up (see issue #12).
   return (
     <div className="tw-panel">
       <div className="tw-card">
@@ -223,12 +218,20 @@ function ReportTab() {
   )
 }
 
-function HistoryTab() {
-  // Dummy until /audit/{ticket_id} is wired up.
+function HistoryTab({ audit }: { audit: ReturnType<typeof useTicketPreview>['audit'] }) {
+  if (audit.kind === 'loading') return <p className="tw-status-text">Loading history…</p>
+  if (audit.kind === 'unavailable') return <p className="tw-status-text">No audit trail for this ticket.</p>
+  if (audit.kind === 'error') return <p className="tw-status-text">Couldn't load history. {audit.message}</p>
+
+  const entries = audit.data
+  if (entries.length === 0) {
+    return <p className="tw-status-text">No audit trail for this ticket yet.</p>
+  }
+
   return (
     <div className="tw-panel">
       <ul className="tw-timeline">
-        {DUMMY_HISTORY.map((entry, i) => (
+        {entries.map((entry, i) => (
           <li key={i} className={`tw-timeline-item tw-timeline-${entry.severity}`}>
             <div className="tw-timeline-title">{entry.title}</div>
             <div className="tw-timeline-message">{entry.message}</div>
@@ -246,7 +249,7 @@ interface TicketWorkspaceContentProps {
 }
 
 function TicketWorkspaceContent({ ticketId }: TicketWorkspaceContentProps) {
-  const { detail, evidence, inventory } = useTicketPreview(ticketId)
+  const { detail, evidence, inventory, audit } = useTicketPreview(ticketId)
   const [activeTab, setActiveTab] = useState<TabId>('overview')
 
   return (
@@ -296,7 +299,7 @@ function TicketWorkspaceContent({ ticketId }: TicketWorkspaceContentProps) {
           {activeTab === 'inventory' && <InventoryTab inventory={inventory} />}
           {activeTab === 'evidence' && <EvidenceTab evidence={evidence} />}
           {activeTab === 'report' && <ReportTab />}
-          {activeTab === 'history' && <HistoryTab />}
+          {activeTab === 'history' && <HistoryTab audit={audit} />}
         </>
       )}
     </div>

@@ -133,3 +133,16 @@ export interface TicketListFilters {
   limit?: number
   offset?: number
 }
+
+export interface AuditLogEntry {
+  ticket_id: string
+  step_name: string
+  input_json: Record<string, unknown>
+  output_json: Record<string, unknown>
+  timestamp: string
+  duration_ms: number
+  title: string
+  message: string
+  severity: 'info' | 'warning' | 'error'
+  status: 'succeeded' | 'failed' | 'skipped'
+}

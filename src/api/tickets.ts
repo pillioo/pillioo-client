@@ -1,5 +1,6 @@
 import { apiGet } from './client'
 import type {
+  AuditLogEntry,
   EvidenceSnapshot,
   InventoryImpact,
   TicketDetail,
@@ -21,4 +22,8 @@ export function getTicketEvidence(ticketId: string): Promise<EvidenceSnapshot> {
 
 export function getInventoryImpact(ticketId: string): Promise<InventoryImpact> {
   return apiGet<InventoryImpact>(`/inventory/impact/${encodeURIComponent(ticketId)}`)
+}
+
+export function getTicketAudit(ticketId: string): Promise<AuditLogEntry[]> {
+  return apiGet<AuditLogEntry[]>(`/audit/${encodeURIComponent(ticketId)}`)
 }
