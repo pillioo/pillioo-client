@@ -10,11 +10,11 @@ import * as mockTickets from './mockTickets'
 import * as realTickets from './tickets'
 
 const useMock = import.meta.env.VITE_USE_MOCK_TICKETS === 'true'
-
 const impl = useMock ? mockTickets : realTickets
 
 export const listTickets = impl.listTickets
 export const getTicketDetail = impl.getTicketDetail
 export const getTicketEvidence = impl.getTicketEvidence
 export const getInventoryImpact = impl.getInventoryImpact
+export const getTicketAudit = impl.getTicketAudit
 export const getReportVersions = impl.getReportVersions

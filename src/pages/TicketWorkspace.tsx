@@ -41,14 +41,6 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'history', label: 'History' },
 ]
 
-// ── Dummy data placeholders ──────────────────────────────────────────
-// History is not wired to the backend yet (separate follow-up). Copy stays
-// user-facing-neutral — no endpoint paths or "TODO"-style wording in visible text.
-const DUMMY_HISTORY: { title: string; status: WorkflowStepStatus['status']; message: string }[] = [
-  { title: 'Ticket created', status: 'succeeded', message: 'The case was created and queued for processing.' },
-  { title: 'Workflow started', status: 'succeeded', message: 'Automated workflow steps began running for this case.' },
-]
-
 // ── Small reusable pieces ────────────────────────────────────────────
 
 interface MetaItemProps {
@@ -270,6 +262,20 @@ function InventoryTab({ inventory }: { inventory: ReturnType<typeof useTicketPre
   )
 }
 
+// failure_reasons entries can be plain strings or structured objects
+// (e.g. { reason, document_type, filter_levels, ... }) depending on the
+// workflow step that produced them, so render defensively either way.
+function renderFailureReason(reason: unknown, index: number): ReactNode {
+  if (typeof reason === 'string') {
+    return <li key={index}>{reason}</li>
+  }
+  if (reason && typeof reason === 'object' && 'reason' in reason) {
+    const text = (reason as { reason?: unknown }).reason
+    return <li key={index}>{typeof text === 'string' ? text : JSON.stringify(reason)}</li>
+  }
+  return <li key={index}>{JSON.stringify(reason)}</li>
+}
+
 function EvidenceTab({ evidence }: { evidence: ReturnType<typeof useTicketPreview>['evidence'] }) {
   if (evidence.kind === 'loading') return <p className="tw-status-text">Loading evidence…</p>
   if (evidence.kind === 'unavailable') {
@@ -331,9 +337,7 @@ function EvidenceTab({ evidence }: { evidence: ReturnType<typeof useTicketPrevie
         <div className="tw-card">
           <h2 className="tw-card-title">Failure Reasons</h2>
           <ul className="tw-plain-list">
-            {data.failure_reasons.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
+            {data.failure_reasons.map((r, i) => renderFailureReason(r, i))}
           </ul>
         </div>
       )}
@@ -553,14 +557,26 @@ function ReportTab({ reportVersions }: { reportVersions: ReturnType<typeof useTi
   )
 }
 
-function HistoryTab() {
-  // Dummy until /audit/{ticket_id} is wired up.
+function HistoryTab({ audit }: { audit: ReturnType<typeof useTicketPreview>['audit'] }) {
+  if (audit.kind === 'loading') return <p className="tw-status-text">Loading history…</p>
+  if (audit.kind === 'unavailable') {
+    return <EmptyState title="No audit trail" description="This case has no audit history yet." />
+  }
+  if (audit.kind === 'error') {
+    return <EmptyState title="Couldn't load history" description={audit.message} />
+  }
+
+  const entries = audit.data
+  if (entries.length === 0) {
+    return <EmptyState title="No audit trail" description="This case hasn't started processing yet." />
+  }
+
   return (
     <ul className="tw-timeline">
-      {DUMMY_HISTORY.map((entry) => {
+      {entries.map((entry, i) => {
         const presentation = getStepStatusPresentation(entry.status)
         return (
-          <li key={entry.title} className="tw-timeline-item">
+          <li key={`${entry.step_name}-${i}`} className="tw-timeline-item">
             <div className="tw-timeline-head">
               <span className="tw-timeline-title">{entry.title}</span>
               <StatusBadge {...presentation} />
@@ -617,7 +633,7 @@ interface TicketWorkspaceContentProps {
 }
 
 function TicketWorkspaceContent({ ticketId }: TicketWorkspaceContentProps) {
-  const { detail, evidence, inventory, reportVersions } = useTicketPreview(ticketId)
+  const { detail, evidence, inventory, audit, reportVersions } = useTicketPreview(ticketId)
   const [activeTab, setActiveTab] = useState<TabId>('overview')
 
   return (
@@ -648,7 +664,7 @@ function TicketWorkspaceContent({ ticketId }: TicketWorkspaceContentProps) {
             {activeTab === 'inventory' && <InventoryTab inventory={inventory} />}
             {activeTab === 'evidence' && <EvidenceTab evidence={evidence} />}
             {activeTab === 'report' && <ReportTab reportVersions={reportVersions} />}
-            {activeTab === 'history' && <HistoryTab />}
+            {activeTab === 'history' && <HistoryTab audit={audit} />}
           </div>
         </>
       )}
@@ -656,9 +672,9 @@ function TicketWorkspaceContent({ ticketId }: TicketWorkspaceContentProps) {
   )
 }
 
-// Full Ticket Workspace tabs render from real data (useTicketPreview) except
-// History, which still uses local dummy data until /audit/{ticket_id} is
-// wired up (separate follow-up) — see docs/PAGES.md.
+// Full Ticket Workspace tabs render from real data (useTicketPreview):
+// Overview, Inventory, Evidence, Report (GET /reports/{ticket_id}/versions),
+// and History (GET /audit/{ticket_id}) — see docs/PAGES.md.
 function TicketWorkspace() {
   const { ticketId } = useParams<{ ticketId: string }>()
 

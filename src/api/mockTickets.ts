@@ -3,6 +3,7 @@
 // between them with a single env flag. Never imported directly by pages/components.
 import { ApiError } from './client'
 import type {
+  AuditLogEntry,
   EvidenceSnapshot,
   InventoryImpact,
   ReportVersion,
@@ -174,6 +175,7 @@ const MOCK_EVIDENCE: Record<string, EvidenceSnapshot> = {
 const MOCK_INVENTORY: Record<string, InventoryImpact> = {
   'T-2381': {
     ticket_id: 'T-2381',
+    matched: true,
     match_result: { matched: true, match_type: 'exact_ndc_match', match_confidence: 0.98, needs_identity_review: false },
     impact_result: {
       affected_departments: ['ICU', 'ER'],
@@ -187,6 +189,7 @@ const MOCK_INVENTORY: Record<string, InventoryImpact> = {
   },
   'T-2355': {
     ticket_id: 'T-2355',
+    matched: true,
     match_result: { matched: true, match_type: 'fuzzy_name_match', match_confidence: 0.81, needs_identity_review: true },
     impact_result: {
       affected_departments: ['GW'],
@@ -203,6 +206,73 @@ const MOCK_INVENTORY: Record<string, InventoryImpact> = {
     matched: false,
     message: 'No matching NDC or lot found in current inventory snapshot.',
   },
+}
+
+const MOCK_AUDIT: Record<string, AuditLogEntry[]> = {
+  'T-2381': [
+    {
+      ticket_id: 'T-2381',
+      step_name: 'inventory_match',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-11T12:02:00.000000',
+      duration_ms: 120,
+      title: 'Inventory Match',
+      message: 'Inventory Match completed successfully.',
+      severity: 'info',
+      status: 'succeeded',
+    },
+    {
+      ticket_id: 'T-2381',
+      step_name: 'evidence_retrieval',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-11T12:02:02.000000',
+      duration_ms: 340,
+      title: 'Evidence Retrieval',
+      message: 'Evidence Retrieval completed successfully.',
+      severity: 'info',
+      status: 'succeeded',
+    },
+    {
+      ticket_id: 'T-2381',
+      step_name: 'policy_aggregation',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-11T12:02:05.000000',
+      duration_ms: 15,
+      title: 'Policy Aggregation',
+      message: 'Routed to final_approval.',
+      severity: 'info',
+      status: 'succeeded',
+    },
+  ],
+  'T-2368': [
+    {
+      ticket_id: 'T-2368',
+      step_name: 'inventory_match',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-09T22:05:30.000000',
+      duration_ms: 100,
+      title: 'Inventory Match',
+      message: 'Inventory Match completed successfully.',
+      severity: 'info',
+      status: 'succeeded',
+    },
+    {
+      ticket_id: 'T-2368',
+      step_name: 'evidence_retrieval',
+      input_json: {},
+      output_json: {},
+      timestamp: '2026-07-09T22:06:00.000000',
+      duration_ms: 500,
+      title: 'Evidence Retrieval',
+      message: 'Evidence Retrieval failed: Milvus unavailable.',
+      severity: 'error',
+      status: 'failed',
+    },
+  ],
 }
 
 const MOCK_REPORTS: Record<string, ReportVersion[]> = {
@@ -338,6 +408,12 @@ export function getInventoryImpact(ticketId: string): Promise<InventoryImpact> {
   const inventory = MOCK_INVENTORY[ticketId]
   if (!inventory) return Promise.reject(new ApiError(404, `No inventory impact for ${ticketId}`))
   return delay(inventory)
+}
+
+export function getTicketAudit(ticketId: string): Promise<AuditLogEntry[]> {
+  const audit = MOCK_AUDIT[ticketId]
+  if (!audit) return Promise.reject(new ApiError(404, `No audit trail for ${ticketId}`))
+  return delay(audit)
 }
 
 export function getReportVersions(ticketId: string): Promise<ReportVersion[]> {
