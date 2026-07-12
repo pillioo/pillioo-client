@@ -90,6 +90,16 @@ export function formatWorkflowStage(workflowStage: string): string {
   return titleCaseFromSnakeOrUpper(workflowStage)
 }
 
+const VERSION_TAG_LABEL: Record<string, string> = {
+  draft_v1: 'Draft v1',
+  draft_v2: 'Draft v2',
+  final_v1: 'Final',
+}
+
+export function formatVersionTag(versionTag: string): string {
+  return VERSION_TAG_LABEL[versionTag] ?? titleCaseFromSnakeOrUpper(versionTag)
+}
+
 export function formatRelativeTime(iso: string | null): string {
   if (!iso) return 'Unknown time'
   const date = new Date(iso)
@@ -104,6 +114,12 @@ export function formatRelativeTime(iso: string | null): string {
   const diffDay = Math.round(diffHour / 24)
   if (diffDay < 30) return `${diffDay}d ago`
   return date.toLocaleDateString()
+}
+
+export function formatAbsoluteDateTime(iso: string | null): string {
+  if (!iso) return 'Unknown time'
+  const date = new Date(iso)
+  return Number.isNaN(date.getTime()) ? 'Unknown time' : date.toLocaleString()
 }
 
 export function getEvidenceStatusPresentation(status: EvidenceStatus): StatusPresentation {

@@ -2,6 +2,7 @@ import { apiGet } from './client'
 import type {
   EvidenceSnapshot,
   InventoryImpact,
+  ReportVersion,
   TicketDetail,
   TicketListFilters,
   TicketListResponse,
@@ -21,4 +22,11 @@ export function getTicketEvidence(ticketId: string): Promise<EvidenceSnapshot> {
 
 export function getInventoryImpact(ticketId: string): Promise<InventoryImpact> {
   return apiGet<InventoryImpact>(`/inventory/impact/${encodeURIComponent(ticketId)}`)
+}
+
+// Ascending by created_at (draft_v1 -> draft_v2 -> final_v1), so the latest
+// version is always the last element — no need for a separate call to
+// GET /reports/{ticket_id} to also get "the latest one".
+export function getReportVersions(ticketId: string): Promise<ReportVersion[]> {
+  return apiGet<ReportVersion[]>(`/reports/${encodeURIComponent(ticketId)}/versions`)
 }

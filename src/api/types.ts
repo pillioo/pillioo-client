@@ -130,6 +130,78 @@ export function isInventoryMatched(inventory: InventoryImpact): inventory is Inv
   return 'match_result' in inventory
 }
 
+export type ReportVersionTag = 'draft_v1' | 'draft_v2' | 'final_v1'
+
+export interface DraftCitation {
+  source: string
+  section: string
+  score: number
+  sentence: string
+}
+
+export interface DraftAffectedProduct {
+  drug_name: string
+  ndc: string | null
+  lot: string | null
+  // Plain string on the backend (DraftReport.AffectedProduct), not the
+  // strict Classification union used elsewhere — values usually overlap.
+  classification: string | null
+}
+
+export interface DraftInventoryImpact {
+  matched: boolean
+  affected_departments: string[]
+  total_quantity: number
+  priority: string | null
+  uncertainty: string | null
+}
+
+export interface DraftEvidenceSummary {
+  coverage_score: number
+  found_sources: string[]
+  missing_sources: string[]
+  key_findings: string[]
+}
+
+// Structured report body (DraftReport on the backend). Present on `.report`
+// when the version was generated with structured output; legacy rows may
+// have this as null with only `report_text` populated.
+export interface DraftReport {
+  title: string
+  summary: string
+  affected_product: DraftAffectedProduct
+  event_classification: string | null
+  inventory_impact: DraftInventoryImpact
+  evidence_summary: DraftEvidenceSummary
+  recommended_review_action: string
+  pharmacist_checklist: string[]
+  citations: DraftCitation[]
+  pharmacist_notes: string[]
+  safety_notes: string[]
+  limitations: string[]
+}
+
+// Response shape for GET /reports/{ticket_id} and /reports/{ticket_id}/versions.
+// Note: `ticket_id` here is the internal numeric FK, not the public "T-..."
+// id used in routes — use the ticketId you already have instead.
+export interface ReportVersion {
+  id: number
+  ticket_id: number
+  version_tag: ReportVersionTag
+  report_text: string
+  report: DraftReport | null
+  created_by: string | null
+  change_summary: string | null
+  change_reason: string | null
+  reviewer_comment: string | null
+  approved_by: string | null
+  approved_at: string | null
+  approval_comment: string | null
+  source_version: string | null
+  created_at: string
+  updated_at: string | null
+}
+
 export interface TicketListFilters {
   status?: TicketStatus
   review_type?: string
