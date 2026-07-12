@@ -6,9 +6,12 @@ import EmptyState from '../components/EmptyState'
 import StatusBadge from '../components/StatusBadge'
 import { useTicketPreview } from '../hooks/useTicketPreview'
 import {
+  formatAbsoluteDateTime,
   formatClassification,
   formatMatchType,
+  formatRelativeTime,
   formatReviewType,
+  formatVersionTag,
   formatWorkflowStage,
   getEvidenceStatusPresentation,
   getInventoryMatchPresentation,
@@ -17,7 +20,15 @@ import {
   getStepStatusPresentation,
 } from '../lib/ticketPresentation'
 import { isInventoryMatched } from '../api/types'
-import type { EvidenceSnapshot, InventoryImpact, TicketDetail, WorkflowStepStatus } from '../api/types'
+import type {
+  Classification,
+  DraftReport,
+  EvidenceSnapshot,
+  InventoryImpact,
+  ReportVersion,
+  TicketDetail,
+  WorkflowStepStatus,
+} from '../api/types'
 import './TicketWorkspace.css'
 
 type TabId = 'overview' | 'inventory' | 'evidence' | 'report' | 'history'
@@ -31,17 +42,8 @@ const TABS: { id: TabId; label: string }[] = [
 ]
 
 // ── Dummy data placeholders ──────────────────────────────────────────
-// report/history are not wired to the backend yet (that's the next PR).
-// Shape mirrors docs/api.md so swapping in real fetches later is a
-// drop-in replacement, not a rewrite. Copy stays user-facing-neutral —
-// no endpoint paths or "TODO"-style wording in visible text.
-const DUMMY_REPORT = {
-  version_tag: 'draft_v1',
-  summary: 'A structured report has not been generated for this case yet.',
-  recommended_review_action: 'No recommended action is available yet.',
-  citations_count: 0,
-}
-
+// History is not wired to the backend yet (separate follow-up). Copy stays
+// user-facing-neutral — no endpoint paths or "TODO"-style wording in visible text.
 const DUMMY_HISTORY: { title: string; status: WorkflowStepStatus['status']; message: string }[] = [
   { title: 'Ticket created', status: 'succeeded', message: 'The case was created and queued for processing.' },
   { title: 'Workflow started', status: 'succeeded', message: 'Automated workflow steps began running for this case.' },
@@ -339,21 +341,214 @@ function EvidenceTab({ evidence }: { evidence: ReturnType<typeof useTicketPrevie
   )
 }
 
-function ReportTab() {
-  // Dummy until /reports/{ticket_id} is wired up.
+function VersionSelector({
+  versions,
+  selectedId,
+  onSelect,
+}: {
+  versions: ReportVersion[]
+  selectedId: number
+  onSelect: (id: number) => void
+}) {
+  if (versions.length <= 1) return null
   return (
-    <div className="tw-tab-grid">
+    <div className="tw-version-tabs" role="tablist" aria-label="Report version">
+      {versions.map((version) => (
+        <button
+          key={version.id}
+          type="button"
+          role="tab"
+          aria-selected={version.id === selectedId}
+          className={`tw-version-tab ${version.id === selectedId ? 'is-selected' : ''}`}
+          onClick={() => onSelect(version.id)}
+        >
+          {formatVersionTag(version.version_tag)}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function DraftReportView({ report }: { report: DraftReport }) {
+  const rawClassification = report.event_classification ?? report.affected_product.classification
+  const classificationLabel = rawClassification
+    ? formatClassification(rawClassification as Classification) ?? rawClassification
+    : null
+
+  return (
+    <div className="tw-stack">
       <div className="tw-card">
-        <div className="tw-card-head">
-          <h2 className="tw-card-title">Latest Version</h2>
-          <span className="tw-tag tw-tag-neutral tw-mono">{DUMMY_REPORT.version_tag}</span>
+        <h2 className="tw-card-title">{report.title}</h2>
+        <p className="tw-status-card-text">{report.summary}</p>
+      </div>
+
+      <div className="tw-card">
+        <h2 className="tw-card-title">Affected Product</h2>
+        <MetaGrid>
+          <MetaItem label="Drug" value={report.affected_product.drug_name} />
+          <MetaItem label="NDC" value={report.affected_product.ndc} mono />
+          <MetaItem label="Lot" value={report.affected_product.lot} mono />
+          <MetaItem label="Classification" value={classificationLabel} />
+        </MetaGrid>
+      </div>
+
+      <div className="tw-card">
+        <h2 className="tw-card-title">Inventory Impact</h2>
+        <MetaGrid>
+          <MetaItem label="Matched" value={report.inventory_impact.matched ? 'Yes' : 'No'} />
+          <MetaItem label="Total quantity" value={report.inventory_impact.total_quantity} />
+          <MetaItem label="Priority" value={report.inventory_impact.priority} />
+        </MetaGrid>
+        {report.inventory_impact.affected_departments.length > 0 && (
+          <ul className="tw-tag-list tw-tag-list-spaced">
+            {report.inventory_impact.affected_departments.map((department) => (
+              <li key={department} className="tw-tag tw-tag-neutral">
+                {department}
+              </li>
+            ))}
+          </ul>
+        )}
+        {report.inventory_impact.uncertainty && (
+          <p className="tw-status-card-text tw-muted">{report.inventory_impact.uncertainty}</p>
+        )}
+      </div>
+
+      <div className="tw-card">
+        <h2 className="tw-card-title">Evidence Summary</h2>
+        <MetaGrid>
+          <MetaItem label="Coverage" value={`${Math.round(report.evidence_summary.coverage_score * 100)}%`} />
+        </MetaGrid>
+        {report.evidence_summary.missing_sources.length > 0 && (
+          <>
+            <p className="tw-tag-list-label">Missing sources</p>
+            <TagList items={report.evidence_summary.missing_sources} tone="danger" />
+          </>
+        )}
+        {report.evidence_summary.key_findings.length > 0 && (
+          <ul className="tw-plain-list">
+            {report.evidence_summary.key_findings.map((finding) => (
+              <li key={finding}>{finding}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <StatusCard title="Recommended Action">
+        <p className="tw-status-card-text">{report.recommended_review_action}</p>
+      </StatusCard>
+
+      {report.pharmacist_checklist.length > 0 && (
+        <div className="tw-card">
+          <h2 className="tw-card-title">Pharmacist Checklist</h2>
+          <ul className="tw-plain-list">
+            {report.pharmacist_checklist.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
         </div>
-        <p className="tw-status-card-text">{DUMMY_REPORT.summary}</p>
+      )}
+
+      {report.citations.length > 0 && (
+        <div className="tw-card">
+          <h2 className="tw-card-title">Citations</h2>
+          <ul className="tw-citation-list">
+            {report.citations.map((citation, index) => (
+              <li key={`${citation.source}-${index}`} className="tw-citation">
+                <p className="tw-citation-sentence">&ldquo;{citation.sentence}&rdquo;</p>
+                <p className="tw-citation-source">
+                  {citation.source} · {citation.section} · {Math.round(citation.score * 100)}% match
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {(report.safety_notes.length > 0 || report.pharmacist_notes.length > 0 || report.limitations.length > 0) && (
+        <div className="tw-card">
+          {report.safety_notes.length > 0 && (
+            <details className="tw-details">
+              <summary>Safety Notes</summary>
+              <ul className="tw-plain-list">
+                {report.safety_notes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+          {report.pharmacist_notes.length > 0 && (
+            <details className="tw-details">
+              <summary>Pharmacist Notes</summary>
+              <ul className="tw-plain-list">
+                {report.pharmacist_notes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+          {report.limitations.length > 0 && (
+            <details className="tw-details">
+              <summary>Limitations</summary>
+              <ul className="tw-plain-list">
+                {report.limitations.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ReportTab({ reportVersions }: { reportVersions: ReturnType<typeof useTicketPreview>['reportVersions'] }) {
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+
+  if (reportVersions.kind === 'loading') return <p className="tw-status-text">Loading report…</p>
+  if (reportVersions.kind === 'unavailable' || (reportVersions.kind === 'ready' && reportVersions.data.length === 0)) {
+    return <EmptyState title="No report yet" description="This case hasn't produced a report yet." />
+  }
+  if (reportVersions.kind === 'error') {
+    return <EmptyState title="Couldn't load report" description={reportVersions.message} />
+  }
+
+  // Versions are ordered oldest -> newest; the last one is the latest.
+  const versions = reportVersions.data
+  const latest = versions[versions.length - 1]
+  const selected = versions.find((version) => version.id === selectedId) ?? latest
+
+  return (
+    <div className="tw-stack">
+      <div className="tw-report-head">
+        <VersionSelector versions={versions} selectedId={selected.id} onSelect={setSelectedId} />
+        <div className="tw-report-meta">
+          <span className="tw-tag tw-tag-neutral tw-mono">{formatVersionTag(selected.version_tag)}</span>
+          <span className="tw-status-text" title={formatAbsoluteDateTime(selected.created_at)}>
+            Generated {formatRelativeTime(selected.created_at)}
+          </span>
+          {selected.created_by && <span className="tw-status-text tw-muted">by {selected.created_by}</span>}
+        </div>
       </div>
-      <div className="tw-card">
-        <h2 className="tw-card-title">Recommended Action</h2>
-        <p className="tw-status-card-text tw-muted">{DUMMY_REPORT.recommended_review_action}</p>
-      </div>
+
+      {selected.approved_by && (
+        <div className="tw-card tw-card-success">
+          <p className="tw-status-card-text">
+            Approved by {selected.approved_by}
+            {selected.approved_at && ` on ${formatAbsoluteDateTime(selected.approved_at)}`}
+            {selected.approval_comment && ` — "${selected.approval_comment}"`}
+          </p>
+        </div>
+      )}
+
+      {selected.report ? (
+        <DraftReportView report={selected.report} />
+      ) : (
+        <div className="tw-card">
+          <h2 className="tw-card-title">Report</h2>
+          <p className="tw-status-card-text tw-report-text">{selected.report_text}</p>
+        </div>
+      )}
     </div>
   )
 }
@@ -422,7 +617,7 @@ interface TicketWorkspaceContentProps {
 }
 
 function TicketWorkspaceContent({ ticketId }: TicketWorkspaceContentProps) {
-  const { detail, evidence, inventory } = useTicketPreview(ticketId)
+  const { detail, evidence, inventory, reportVersions } = useTicketPreview(ticketId)
   const [activeTab, setActiveTab] = useState<TabId>('overview')
 
   return (
@@ -452,7 +647,7 @@ function TicketWorkspaceContent({ ticketId }: TicketWorkspaceContentProps) {
             )}
             {activeTab === 'inventory' && <InventoryTab inventory={inventory} />}
             {activeTab === 'evidence' && <EvidenceTab evidence={evidence} />}
-            {activeTab === 'report' && <ReportTab />}
+            {activeTab === 'report' && <ReportTab reportVersions={reportVersions} />}
             {activeTab === 'history' && <HistoryTab />}
           </div>
         </>
@@ -462,8 +657,8 @@ function TicketWorkspaceContent({ ticketId }: TicketWorkspaceContentProps) {
 }
 
 // Full Ticket Workspace tabs render from real data (useTicketPreview) except
-// Report/History, which still use local dummy data until /reports/{ticket_id}
-// and /audit/{ticket_id} are wired up — see docs/PAGES.md.
+// History, which still uses local dummy data until /audit/{ticket_id} is
+// wired up (separate follow-up) — see docs/PAGES.md.
 function TicketWorkspace() {
   const { ticketId } = useParams<{ ticketId: string }>()
 

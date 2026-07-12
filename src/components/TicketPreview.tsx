@@ -46,6 +46,9 @@ function TicketPreview({ ticketId }: TicketPreviewProps) {
   const ticket = detail.data
   const status = getStatusPresentation(ticket.status)
   const reviewTypeLabel = formatReviewType(ticket.review_type)
+  // Emphasize the actionable case: a case actually routed for review should
+  // read as "Start Review", not the same generic label as a closed case.
+  const primaryActionLabel = ticket.status === 'REVIEW_ROUTED' ? 'Start Review' : 'Open Workspace'
 
   return (
     <div className="ticket-preview">
@@ -106,7 +109,7 @@ function TicketPreview({ ticketId }: TicketPreviewProps) {
       </div>
 
       <Link className="ticket-preview-open" to={`/app/tickets/${ticket.ticket_id}`}>
-        Open Workspace
+        {primaryActionLabel}
       </Link>
     </div>
   )
