@@ -1,0 +1,134 @@
+.safety-inbox {
+  flex: 1;
+  display: flex;
+  gap: 24px;
+  padding: 24px 32px;
+  align-items: flex-start;
+  min-height: 0;
+
+  @media (max-width: 1024px) {
+    padding: 20px 24px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    flex-direction: column;
+  }
+}
+
+.safety-inbox-list-pane {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.safety-inbox-preview-pane {
+  width: 360px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 24px;
+
+  @media (max-width: 1200px) {
+    width: 320px;
+  }
+}
+
+.safety-inbox-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.safety-inbox-search {
+  height: 40px;
+  padding: 0 14px;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--color-text-primary);
+  width: 100%;
+  max-width: 360px;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--color-primary-focus);
+  }
+
+  @media (max-width: 768px) {
+    max-width: none;
+  }
+}
+
+.safety-inbox-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.safety-inbox-chip {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-1);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-border-strong);
+  }
+
+  &.is-active {
+    background: var(--color-primary-soft);
+    border-color: var(--color-border-strong);
+    color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-focus);
+    outline-offset: 2px;
+  }
+}
+
+.safety-inbox-status-text {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  padding: 32px 4px;
+  text-align: center;
+}
+
+.safety-inbox-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-danger);
+}
+
+.safety-inbox-retry {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-1);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-border-strong);
+  }
+}
