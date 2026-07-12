@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ApiError } from '../api/client'
-import { getInventoryImpact, getTicketAudit, getTicketDetail, getTicketEvidence } from '../api/ticketsService'
-import type { AuditLogEntry, EvidenceSnapshot, InventoryImpact, TicketDetail } from '../api/types'
+import { getInventoryImpact, getReportVersions, getTicketAudit, getTicketDetail, getTicketEvidence } from '../api/ticketsService'
+import type { AuditLogEntry, EvidenceSnapshot, InventoryImpact, ReportVersion, TicketDetail } from '../api/types'
 import type { PanelState } from '../lib/ticketPresentation'
 
 interface TicketPreviewState {
@@ -9,6 +9,7 @@ interface TicketPreviewState {
   evidence: PanelState<EvidenceSnapshot>
   inventory: PanelState<InventoryImpact>
   audit: PanelState<AuditLogEntry[]>
+  reportVersions: PanelState<ReportVersion[]>
 }
 
 const INITIAL_PANELS: TicketPreviewState = {
@@ -16,6 +17,7 @@ const INITIAL_PANELS: TicketPreviewState = {
   evidence: { kind: 'loading' },
   inventory: { kind: 'loading' },
   audit: { kind: 'loading' },
+  reportVersions: { kind: 'loading' },
 }
 
 function toPanelState<T>(error: unknown): PanelState<T> {
@@ -24,11 +26,12 @@ function toPanelState<T>(error: unknown): PanelState<T> {
   return { kind: 'error', message }
 }
 
-// Loads ticket detail, evidence, inventory impact, and audit trail independently
-// so one failing panel doesn't blank the rest of the preview (see docs/API_FLOW.md).
-// Callers should remount this hook's owner with `key={ticketId}` when
-// switching between tickets (see TicketPreview/TicketWorkspace usage) so
-// panel state always starts fresh instead of needing manual request tracking.
+// Loads ticket detail, evidence, inventory impact, audit trail, and report
+// versions independently so one failing panel doesn't blank the rest of the
+// preview (see docs/API_FLOW.md). Callers should remount this hook's owner
+// with `key={ticketId}` when switching between tickets (see
+// TicketPreview/TicketWorkspace usage) so panel state always starts fresh
+// instead of needing manual request tracking.
 export function useTicketPreview(ticketId: string): TicketPreviewState {
   const [state, setState] = useState<TicketPreviewState>(INITIAL_PANELS)
 
@@ -65,6 +68,14 @@ export function useTicketPreview(ticketId: string): TicketPreviewState {
       })
       .catch((error: unknown) => {
         if (!cancelled) setState((prev) => ({ ...prev, audit: toPanelState(error) }))
+      })
+
+    getReportVersions(ticketId)
+      .then((data) => {
+        if (!cancelled) setState((prev) => ({ ...prev, reportVersions: { kind: 'ready', data } }))
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setState((prev) => ({ ...prev, reportVersions: toPanelState(error) }))
       })
 
     return () => {

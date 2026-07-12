@@ -1,10 +1,13 @@
 // Pure presentation helpers: label/tone mapping and derived copy for ticket
 // data. Nothing here calls the network — see src/api for that.
+import { isInventoryMatched } from '../api/types'
 import type {
   Classification,
   EvidenceSnapshot,
+  EvidenceStatus,
   InventoryImpact,
   TicketDetail,
+  WorkflowStepStatus,
   TicketStatus,
 } from '../api/types'
 
@@ -38,6 +41,28 @@ const CLASSIFICATION_LABEL: Record<Classification, string> = {
   class_iii: 'Class III recall',
 }
 
+const CLASSIFICATION_SHORT_LABEL: Record<Classification, string> = {
+  class_i: 'Class I',
+  class_ii: 'Class II',
+  class_iii: 'Class III',
+}
+
+// Short form for metadata grids, distinct from formatEventType's "Class I
+// recall" phrasing used in case-list contexts.
+export function formatClassification(classification: Classification | null): string | null {
+  return classification ? CLASSIFICATION_SHORT_LABEL[classification] : null
+}
+
+const MATCH_TYPE_LABEL: Record<string, string> = {
+  exact_ndc_match: 'Exact NDC match',
+  fuzzy_name_match: 'Fuzzy name match',
+  no_match: 'No match',
+}
+
+export function formatMatchType(matchType: string): string {
+  return MATCH_TYPE_LABEL[matchType] ?? titleCaseFromSnakeOrUpper(matchType)
+}
+
 function titleCaseFromSnakeOrUpper(value: string): string {
   return value
     .split('_')
@@ -65,6 +90,16 @@ export function formatWorkflowStage(workflowStage: string): string {
   return titleCaseFromSnakeOrUpper(workflowStage)
 }
 
+const VERSION_TAG_LABEL: Record<string, string> = {
+  draft_v1: 'Draft v1',
+  draft_v2: 'Draft v2',
+  final_v1: 'Final',
+}
+
+export function formatVersionTag(versionTag: string): string {
+  return VERSION_TAG_LABEL[versionTag] ?? titleCaseFromSnakeOrUpper(versionTag)
+}
+
 export function formatRelativeTime(iso: string | null): string {
   if (!iso) return 'Unknown time'
   const date = new Date(iso)
@@ -79,6 +114,37 @@ export function formatRelativeTime(iso: string | null): string {
   const diffDay = Math.round(diffHour / 24)
   if (diffDay < 30) return `${diffDay}d ago`
   return date.toLocaleDateString()
+}
+
+export function formatAbsoluteDateTime(iso: string | null): string {
+  if (!iso) return 'Unknown time'
+  const date = new Date(iso)
+  return Number.isNaN(date.getTime()) ? 'Unknown time' : date.toLocaleString()
+}
+
+export function getEvidenceStatusPresentation(status: EvidenceStatus): StatusPresentation {
+  return status === 'sufficient'
+    ? { label: 'Sufficient evidence', tone: 'success' }
+    : { label: 'Insufficient evidence', tone: 'warning' }
+}
+
+export function getInventoryMatchPresentation(inventory: InventoryImpact): StatusPresentation {
+  return isInventoryMatched(inventory)
+    ? { label: 'Inventory matched', tone: 'success' }
+    : { label: 'No inventory match', tone: 'info' }
+}
+
+export function getStepStatusPresentation(status: WorkflowStepStatus['status']): StatusPresentation {
+  switch (status) {
+    case 'succeeded':
+      return { label: 'Succeeded', tone: 'success' }
+    case 'failed':
+      return { label: 'Failed', tone: 'danger' }
+    case 'skipped':
+      return { label: 'Skipped', tone: 'info' }
+    default:
+      return { label: 'Pending', tone: 'info' }
+  }
 }
 
 export type PanelState<T> =
@@ -107,7 +173,7 @@ export function getRecommendedNextStep(
     return 'Resolve insufficient evidence before this case can be reviewed.'
   }
 
-  if (inventory.kind === 'ready' && inventory.data.matched && inventory.data.impact_result.urgent) {
+  if (inventory.kind === 'ready' && isInventoryMatched(inventory.data) && inventory.data.impact_result.urgent) {
     return 'Urgent inventory impact detected — prioritize pharmacist review.'
   }
 

@@ -120,10 +120,15 @@ function SafetyInbox() {
 
   const isSearchOrFilterActive = activeFilterKey !== 'all' || debouncedQuery.length > 0
 
+  // "Needs review" is a filter chip within the Inbox, not a separate nav
+  // destination — only the empty-state copy is tailored to it.
+  const isReviewQueue = activeFilterKey === 'needs-review'
+
   return (
     <AppShell title="Safety Inbox">
       <div className="safety-inbox">
         <div className="safety-inbox-list-pane">
+          <h1 className="safety-inbox-title">Safety Inbox</h1>
           <div className="safety-inbox-controls">
             <input
               type="search"
@@ -161,15 +166,26 @@ function SafetyInbox() {
             </div>
           )}
 
-          {listState.kind === 'ready' && listState.tickets.length === 0 && !isSearchOrFilterActive && (
+          {listState.kind === 'ready' && listState.tickets.length === 0 && isReviewQueue && !debouncedQuery && (
             <p className="safety-inbox-status-text">
-              No cases yet. New drug safety events will appear here as they're detected.
+              No cases need review right now. New cases will appear here as they're routed for review.
             </p>
           )}
 
-          {listState.kind === 'ready' && listState.tickets.length === 0 && isSearchOrFilterActive && (
-            <p className="safety-inbox-status-text">No cases match this search or filter.</p>
-          )}
+          {listState.kind === 'ready' &&
+            listState.tickets.length === 0 &&
+            !isSearchOrFilterActive && (
+              <p className="safety-inbox-status-text">
+                No cases yet. New drug safety events will appear here as they're detected.
+              </p>
+            )}
+
+          {listState.kind === 'ready' &&
+            listState.tickets.length === 0 &&
+            isSearchOrFilterActive &&
+            !(isReviewQueue && !debouncedQuery) && (
+              <p className="safety-inbox-status-text">No cases match this search or filter.</p>
+            )}
 
           {listState.kind === 'ready' && listState.tickets.length > 0 && (
             <TicketList

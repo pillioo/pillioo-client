@@ -19,8 +19,6 @@ export type Classification = 'class_i' | 'class_ii' | 'class_iii'
 
 export type Priority = 'HIGH' | 'MEDIUM' | 'LOW'
 
-// review_type is typed as a plain string on the backend response models
-// (not the ReviewType enum), so unrecognized values should degrade gracefully.
 export type ReviewType =
   | 'identity_review'
   | 'evidence_review'
@@ -41,8 +39,6 @@ export interface TicketListItem {
   priority: Priority | null
   review_type: ReviewType | null
   created_at: string
-  // Nullable here only: the DB column has no insert-time default and is set
-  // on first UPDATE. GET /tickets/{id} coalesces this to created_at instead.
   updated_at: string | null
 }
 
@@ -124,6 +120,10 @@ export interface InventoryImpactMatched {
 
 export type InventoryImpact = InventoryImpactMatched | InventoryImpactUnmatched
 
+export function isInventoryMatched(data: InventoryImpact): data is InventoryImpactMatched {
+  return data.matched === true
+}
+
 export interface TicketListFilters {
   status?: TicketStatus
   review_type?: string
@@ -145,4 +145,68 @@ export interface AuditLogEntry {
   message: string
   severity: 'info' | 'warning' | 'error'
   status: 'succeeded' | 'failed' | 'skipped'
+}
+
+export type ReportVersionTag = 'draft_v1' | 'draft_v2' | 'final_v1'
+
+export interface AffectedProduct {
+  drug_name: string
+  ndc: string | null
+  lot: string | null
+  classification: string | null
+}
+
+export interface InventoryImpactSummary {
+  matched: boolean
+  affected_departments: string[]
+  total_quantity: number
+  priority: Priority
+  uncertainty: string | null
+}
+
+export interface EvidenceSummary {
+  coverage_score: number
+  found_sources: string[]
+  missing_sources: string[]
+  key_findings: string[]
+}
+
+export interface DraftCitation {
+  source: string
+  section: string
+  score: number
+  sentence: string
+}
+
+export interface DraftReport {
+  title: string
+  summary: string
+  affected_product: AffectedProduct
+  event_classification: string | null
+  inventory_impact: InventoryImpactSummary
+  evidence_summary: EvidenceSummary
+  recommended_review_action: string
+  pharmacist_checklist: string[]
+  citations: DraftCitation[]
+  pharmacist_notes: string[]
+  safety_notes: string[]
+  limitations: string[]
+}
+
+export interface ReportVersion {
+  id: number
+  ticket_id: number
+  version_tag: ReportVersionTag
+  report_text: string
+  report: DraftReport | null
+  created_by: string | null
+  change_summary: string | null
+  change_reason: string | null
+  reviewer_comment: string | null
+  approved_by: string | null
+  approved_at: string | null
+  approval_comment: string | null
+  source_version: string | null
+  created_at: string
+  updated_at: string | null
 }
