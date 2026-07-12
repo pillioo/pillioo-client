@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react'
 import { ApiError } from '../api/client'
-import { getInventoryImpact, getTicketDetail, getTicketEvidence } from '../api/ticketsService'
-import type { EvidenceSnapshot, InventoryImpact, TicketDetail } from '../api/types'
+import { getInventoryImpact, getReportVersions, getTicketDetail, getTicketEvidence } from '../api/ticketsService'
+import type { EvidenceSnapshot, InventoryImpact, ReportVersion, TicketDetail } from '../api/types'
 import type { PanelState } from '../lib/ticketPresentation'
 
 interface TicketPreviewState {
   detail: PanelState<TicketDetail>
   evidence: PanelState<EvidenceSnapshot>
   inventory: PanelState<InventoryImpact>
+  reportVersions: PanelState<ReportVersion[]>
 }
 
 const INITIAL_PANELS: TicketPreviewState = {
   detail: { kind: 'loading' },
   evidence: { kind: 'loading' },
   inventory: { kind: 'loading' },
+  reportVersions: { kind: 'loading' },
 }
 
 function toPanelState<T>(error: unknown): PanelState<T> {
@@ -55,6 +57,14 @@ export function useTicketPreview(ticketId: string): TicketPreviewState {
       })
       .catch((error: unknown) => {
         if (!cancelled) setState((prev) => ({ ...prev, inventory: toPanelState(error) }))
+      })
+
+    getReportVersions(ticketId)
+      .then((data) => {
+        if (!cancelled) setState((prev) => ({ ...prev, reportVersions: { kind: 'ready', data } }))
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setState((prev) => ({ ...prev, reportVersions: toPanelState(error) }))
       })
 
     return () => {

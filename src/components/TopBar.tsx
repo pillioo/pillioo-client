@@ -9,8 +9,7 @@ interface TopBarProps {
 // wordmark and primary nav, so this avoids duplicating them above 768px.
 function TopBar({ title }: TopBarProps) {
   const location = useLocation()
-  const isReviewsActive = location.pathname === '/app' && location.search.includes('filter=needs-review')
-  const isInboxActive = location.pathname.startsWith('/app') && !isReviewsActive
+  const isInboxActive = location.pathname.startsWith('/app')
 
   return (
     <header className="top-bar">
@@ -23,12 +22,6 @@ function TopBar({ title }: TopBarProps) {
       <nav className="top-bar-nav" aria-label="Primary">
         <Link to="/app" className={`top-bar-nav-item ${isInboxActive ? 'is-active' : ''}`}>
           Inbox
-        </Link>
-        <Link
-          to="/app?filter=needs-review"
-          className={`top-bar-nav-item ${isReviewsActive ? 'is-active' : ''}`}
-        >
-          Reviews
         </Link>
       </nav>
     </header>

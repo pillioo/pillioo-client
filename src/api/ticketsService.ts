@@ -17,3 +17,4 @@ export const listTickets = impl.listTickets
 export const getTicketDetail = impl.getTicketDetail
 export const getTicketEvidence = impl.getTicketEvidence
 export const getInventoryImpact = impl.getInventoryImpact
+export const getReportVersions = impl.getReportVersions

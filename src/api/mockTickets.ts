@@ -5,6 +5,7 @@ import { ApiError } from './client'
 import type {
   EvidenceSnapshot,
   InventoryImpact,
+  ReportVersion,
   TicketDetail,
   TicketListFilters,
   TicketListItem,
@@ -173,7 +174,6 @@ const MOCK_EVIDENCE: Record<string, EvidenceSnapshot> = {
 const MOCK_INVENTORY: Record<string, InventoryImpact> = {
   'T-2381': {
     ticket_id: 'T-2381',
-    matched: true,
     match_result: { matched: true, match_type: 'exact_ndc_match', match_confidence: 0.98, needs_identity_review: false },
     impact_result: {
       affected_departments: ['ICU', 'ER'],
@@ -187,7 +187,6 @@ const MOCK_INVENTORY: Record<string, InventoryImpact> = {
   },
   'T-2355': {
     ticket_id: 'T-2355',
-    matched: true,
     match_result: { matched: true, match_type: 'fuzzy_name_match', match_confidence: 0.81, needs_identity_review: true },
     impact_result: {
       affected_departments: ['GW'],
@@ -204,6 +203,98 @@ const MOCK_INVENTORY: Record<string, InventoryImpact> = {
     matched: false,
     message: 'No matching NDC or lot found in current inventory snapshot.',
   },
+}
+
+const MOCK_REPORTS: Record<string, ReportVersion[]> = {
+  'T-2381': [
+    {
+      id: 101,
+      ticket_id: 1,
+      version_tag: 'draft_v1',
+      report_text: 'Class I recall review: Dexamethasone Injection NDC 71449-0072-41 lot 2331062...',
+      report: {
+        title: 'Class I recall review: Dexamethasone Injection',
+        summary:
+          'A Class I recall notice is present for this NDC and lot. Evidence indicates pharmacist review is required before quarantine status is confirmed.',
+        affected_product: { drug_name: 'Dexamethasone Injection', ndc: '71449-0072-41', lot: '2331062', classification: 'class_i' },
+        event_classification: 'class_i',
+        inventory_impact: {
+          matched: true,
+          affected_departments: ['ICU', 'ER'],
+          total_quantity: 52,
+          priority: 'HIGH',
+          uncertainty: null,
+        },
+        evidence_summary: {
+          coverage_score: 0.92,
+          found_sources: ['recall_notice', 'policy', 'sop'],
+          missing_sources: [],
+          key_findings: ['Recall number D-0277-2024 is classified as Class I.', 'Policy requires verification against active inventory.'],
+        },
+        recommended_review_action:
+          'Pharmacist review required to verify the recall details against active inventory records and confirm the appropriate operational response.',
+        pharmacist_checklist: [
+          'Verify the recall number, classification, affected product, NDC, lot, and expiration information.',
+          'Match the affected product against active inventory using NDC, lot, and normalized drug name.',
+        ],
+        citations: [
+          { source: 'data/rag/documents/recall_notice/recall-d_0277_2024.md', section: 'recall_notice', score: 0.55, sentence: 'Recall number D-0277-2024 is classified as Class I.' },
+        ],
+        pharmacist_notes: ['The recall notice states the status is ongoing and distribution is nationwide.'],
+        safety_notes: ['Class I recall classification indicates a high-severity recall context.'],
+        limitations: ['The evidence excerpts do not confirm whether the product is currently present in active inventory.'],
+      },
+      created_by: 'workflow',
+      change_summary: null,
+      change_reason: null,
+      reviewer_comment: null,
+      approved_by: null,
+      approved_at: null,
+      approval_comment: null,
+      source_version: null,
+      created_at: '2026-07-11T12:02:19.953933',
+      updated_at: null,
+    },
+  ],
+  'T-2355': [
+    {
+      id: 205,
+      ticket_id: 5,
+      version_tag: 'final_v1',
+      report_text: 'Class II recall review: Insulin Glargine Injection NDC 00088-2220-33 lot 4471B...',
+      report: {
+        title: 'Class II recall review: Insulin Glargine Injection',
+        summary: 'A Class II recall notice is present for this NDC and lot with a fuzzy-matched inventory hit.',
+        affected_product: { drug_name: 'Insulin Glargine Injection', ndc: '00088-2220-33', lot: '4471B', classification: 'class_ii' },
+        event_classification: 'class_ii',
+        inventory_impact: { matched: true, affected_departments: ['GW'], total_quantity: 6, priority: 'MEDIUM', uncertainty: 'Fuzzy name match below high-confidence threshold.' },
+        evidence_summary: {
+          coverage_score: 1,
+          found_sources: ['recall_notice', 'policy'],
+          missing_sources: [],
+          key_findings: ['Recall number D-0248-2024 is classified as Class II.'],
+        },
+        recommended_review_action: 'Confirm inventory match and route affected units for quarantine per SOP.',
+        pharmacist_checklist: ['Confirm fuzzy-matched inventory rows against NDC and lot before quarantine.'],
+        citations: [
+          { source: 'data/rag/documents/recall_notice/recall-d_0248_2024.md', section: 'recall_notice', score: 0.61, sentence: 'Recall number D-0248-2024 is classified as Class II.' },
+        ],
+        pharmacist_notes: [],
+        safety_notes: [],
+        limitations: [],
+      },
+      created_by: 'pharm-1',
+      change_summary: null,
+      change_reason: null,
+      reviewer_comment: null,
+      approved_by: 'pharm-1',
+      approved_at: '2026-07-09T10:12:00.000000',
+      approval_comment: 'Reviewed evidence and draft.',
+      source_version: 'draft_v1',
+      created_at: '2026-07-09T10:12:00.000000',
+      updated_at: null,
+    },
+  ],
 }
 
 function matchesFilters(ticket: TicketListItem, filters: TicketListFilters): boolean {
@@ -247,4 +338,10 @@ export function getInventoryImpact(ticketId: string): Promise<InventoryImpact> {
   const inventory = MOCK_INVENTORY[ticketId]
   if (!inventory) return Promise.reject(new ApiError(404, `No inventory impact for ${ticketId}`))
   return delay(inventory)
+}
+
+export function getReportVersions(ticketId: string): Promise<ReportVersion[]> {
+  const versions = MOCK_REPORTS[ticketId]
+  if (!versions) return Promise.reject(new ApiError(404, `No report for ${ticketId}`))
+  return delay(versions)
 }

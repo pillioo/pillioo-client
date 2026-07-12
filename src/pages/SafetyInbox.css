@@ -35,6 +35,14 @@
   }
 }
 
+.safety-inbox-title {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
 .safety-inbox-controls {
   display: flex;
   flex-direction: column;
