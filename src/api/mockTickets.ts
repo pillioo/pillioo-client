@@ -173,7 +173,6 @@ const MOCK_EVIDENCE: Record<string, EvidenceSnapshot> = {
 const MOCK_INVENTORY: Record<string, InventoryImpact> = {
   'T-2381': {
     ticket_id: 'T-2381',
-    matched: true,
     match_result: { matched: true, match_type: 'exact_ndc_match', match_confidence: 0.98, needs_identity_review: false },
     impact_result: {
       affected_departments: ['ICU', 'ER'],
@@ -187,7 +186,6 @@ const MOCK_INVENTORY: Record<string, InventoryImpact> = {
   },
   'T-2355': {
     ticket_id: 'T-2355',
-    matched: true,
     match_result: { matched: true, match_type: 'fuzzy_name_match', match_confidence: 0.81, needs_identity_review: true },
     impact_result: {
       affected_departments: ['GW'],
