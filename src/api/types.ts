@@ -98,9 +98,11 @@ export interface InventoryImpactUnmatched {
   message: string
 }
 
+// Note: the matched-case response has no root-level `matched` field at all —
+// only `match_result.matched` — unlike the unmatched case, which does. Use
+// isInventoryMatched() below to narrow instead of reading `.matched` directly.
 export interface InventoryImpactMatched {
   ticket_id: string
-  matched: true
   match_result: {
     matched: boolean
     match_type: 'exact_ndc_match' | 'fuzzy_name_match' | 'no_match'
@@ -123,6 +125,10 @@ export interface InventoryImpactMatched {
 }
 
 export type InventoryImpact = InventoryImpactMatched | InventoryImpactUnmatched
+
+export function isInventoryMatched(inventory: InventoryImpact): inventory is InventoryImpactMatched {
+  return 'match_result' in inventory
+}
 
 export interface TicketListFilters {
   status?: TicketStatus
