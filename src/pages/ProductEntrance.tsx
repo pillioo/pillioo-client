@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { LANDING_PREVIEW_TICKETS, LANDING_WORKFLOW_STEPS } from '../data/landingPreview'
 import './ProductEntrance.css'
 
@@ -9,9 +10,9 @@ function ProductEntrance() {
           <span className="entrance-wordmark">pillioo</span>
           <nav className="entrance-nav-links" aria-label="Primary">
             <a href="#workflow">How it works</a>
-            <a className="entrance-nav-cta" href="/app">
+            <Link className="entrance-nav-cta" to="/app">
               Enter Pillioo
-            </a>
+            </Link>
           </nav>
         </div>
       </header>
@@ -32,9 +33,9 @@ function ProductEntrance() {
               약사의 검토 가능한 결정으로 연결합니다.
             </p>
             <div className="entrance-hero-actions">
-              <a className="entrance-btn entrance-btn-primary" href="/app">
+              <Link className="entrance-btn entrance-btn-primary" to="/app">
                 Enter Pillioo
-              </a>
+              </Link>
               <a className="entrance-btn entrance-btn-secondary" href="#workflow">
                 Explore the workflow
               </a>
@@ -84,9 +85,9 @@ function ProductEntrance() {
         <section className="entrance-final-cta">
           <div className="entrance-container">
             <h2>Ready to see how a case moves through Pillioo?</h2>
-            <a className="entrance-btn entrance-btn-primary" href="/app">
+            <Link className="entrance-btn entrance-btn-primary" to="/app">
               Enter Pillioo
-            </a>
+            </Link>
           </div>
         </section>
       </main>
