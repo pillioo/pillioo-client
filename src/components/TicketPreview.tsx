@@ -50,6 +50,11 @@ function TicketPreview({ ticketId }: TicketPreviewProps) {
   // read as "Start Review", not the same generic label as a closed case.
   const primaryActionLabel = ticket.status === 'REVIEW_ROUTED' ? 'Start Review' : 'Open Workspace'
 
+  const openPath =
+  ticket.status === 'REVIEW_ROUTED'
+    ? `/app/tickets/${ticket.ticket_id}/review`
+    : `/app/tickets/${ticket.ticket_id}`
+
   return (
     <div className="ticket-preview">
       <div className="ticket-preview-header">
@@ -108,7 +113,7 @@ function TicketPreview({ ticketId }: TicketPreviewProps) {
         <p>{getRecommendedNextStep(ticket, evidence, inventory)}</p>
       </div>
 
-      <Link className="ticket-preview-open" to={`/app/tickets/${ticket.ticket_id}`}>
+      <Link className="ticket-preview-open" to={openPath}>
         {primaryActionLabel}
       </Link>
     </div>

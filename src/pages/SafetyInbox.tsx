@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ApiError } from '../api/client'
 import { listTickets } from '../api/ticketsService'
 import type { TicketListFilters, TicketListItem } from '../api/types'
@@ -9,6 +8,7 @@ import TicketPreview from '../components/TicketPreview'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useIsMobile } from '../hooks/useIsMobile'
 import './SafetyInbox.css'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 interface FilterChip {
   key: string
@@ -124,7 +124,7 @@ function SafetyInbox() {
   // destination — only the empty-state copy is tailored to it.
   const isReviewQueue = activeFilterKey === 'needs-review'
 
-  return (
+    return (
     <AppShell title="Safety Inbox">
       <div className="safety-inbox">
         <div className="safety-inbox-list-pane">
@@ -138,6 +138,9 @@ function SafetyInbox() {
               onChange={(event) => setSearchInput(event.target.value)}
               aria-label="Search cases"
             />
+            <Link to="/app/events/upload" className="safety-inbox-upload-btn">
+              Upload Event
+            </Link>
             <div className="safety-inbox-chips" role="group" aria-label="Status filters">
               {FILTER_CHIPS.map((chip) => (
                 <button
