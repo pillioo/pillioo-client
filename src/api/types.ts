@@ -77,15 +77,59 @@ export interface TicketDetail {
 
 export type EvidenceStatus = 'sufficient' | 'insufficient'
 
+// failure_reasons entries are normally structured objects keyed by `reason`
+// with variable extra fields depending on which sufficiency check produced
+// them (see backend app/rag/sufficiency.py), but legacy tickets can still
+// return plain strings — keep both shapes representable.
+export interface EvidenceFailureReason {
+  reason: string
+  document_type?: string
+  filter_levels?: string[]
+  required_sections?: string[]
+  matched_sections?: string[]
+  matched_identifiers?: Record<string, string>
+  missing_chunks?: { chunk_id: number; missing_fields: string[] }[]
+}
+
+// Mirrors backend app/schemas/evidence.py EvidenceChunk. This is the shape of
+// items in the top-level `selected_chunks` field — distinct from (and richer
+// than) the chunk shape nested under `retrieval_trace.selected_chunks`.
+export interface EvidenceChunk {
+  content: string
+  document_type: string
+  section: string
+  similarity_score: number
+  source_path: string
+  chunk_index: number
+  drug_name: string | null
+  filter_level: string | null
+  matched_identifiers: Record<string, string>
+  rank_reasons: string[]
+  rank_score: number | null
+  lexical_overlap_score: number | null
+  lexical_overlap_terms: string[]
+}
+
 export interface EvidenceSnapshot {
-  evidence_status: EvidenceStatus
+  evidence_status: EvidenceStatus | null
   coverage_score: number | null
   citations_ready: boolean | null
   required_sources: string[]
   found_sources: string[]
   missing_sources: string[]
   weak_sources: string[]
-  failure_reasons: string[]
+  failure_reasons: (string | EvidenceFailureReason)[]
+  selected_chunks: EvidenceChunk[]
+  snapshot_type: string | null
+  source_audit_log_id: number | null
+  created_at: string | null
+  // Debug-only fields (see docs/PAGES.md Evidence Tab): render behind a
+  // collapsed details section, never as primary UI. Shape varies by
+  // workflow path (see app/rag/service.py build_retrieval_trace), so these
+  // stay loosely typed rather than modeled field-by-field.
+  retrieval_context: Record<string, unknown>
+  retrieval_plan: Record<string, unknown>
+  retrieval_trace: Record<string, unknown>
 }
 
 export interface InventoryImpactUnmatched {

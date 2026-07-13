@@ -492,6 +492,157 @@
   margin: 0;
 }
 
+/* Evidence tab */
+
+.tw-evidence-summary {
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tw-evidence-summary-success {
+  border-color: var(--color-success);
+}
+
+.tw-evidence-summary-warning {
+  border-color: var(--color-warning);
+}
+
+.tw-evidence-summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tw-evidence-summary-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tw-evidence-summary-stats {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.tw-evidence-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tw-evidence-stat-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.tw-evidence-stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.tw-evidence-summary-note {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.tw-evidence-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Single column: evidence cards carry enough detail (excerpt, identifiers,
+   retrieval details) that a multi-column grid compresses them unreadably. */
+.tw-evidence-source-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Source checklist (Recall notice / Hospital policy / SOP...) — the primary
+   translation of required/found/missing/weak sources into plain language. */
+.tw-evidence-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tw-evidence-checklist-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.tw-evidence-checklist-label {
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.tw-evidence-debug summary {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.tw-evidence-debug-body {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Raw JSON stays behind a second, nested collapsed control — never expanded
+   by default, even once the outer "Technical retrieval trace" is open. */
+.tw-evidence-debug-raw {
+  summary {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+}
+
+.tw-evidence-debug-pre {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin: 8px 0 0;
+  overflow-x: auto;
+  white-space: pre;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
 /* Collapsible note sections */
 
 .tw-details {

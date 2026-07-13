@@ -139,6 +139,62 @@ const MOCK_EVIDENCE: Record<string, EvidenceSnapshot> = {
     missing_sources: [],
     weak_sources: [],
     failure_reasons: [],
+    snapshot_type: 'workflow_evidence',
+    source_audit_log_id: 5821,
+    created_at: '2026-07-11T12:02:04.000000',
+    selected_chunks: [
+      {
+        content:
+          'Recall number D-0277-2024 is classified as Class I. Affected lots include 2331062, distributed nationwide. Pharmacies should immediately quarantine remaining stock and complete the attached reconciliation form.',
+        document_type: 'recall_notice',
+        section: 'recall_notice',
+        similarity_score: 0.551,
+        source_path: 'data/rag/documents/recall_notice/recall-d_0277_2024.md',
+        chunk_index: 0,
+        drug_name: 'Dexamethasone Injection',
+        filter_level: 'strong_identifier_section',
+        matched_identifiers: { recall_number: 'D-0277-2024', lot: '2331062' },
+        rank_reasons: ['lexical_overlap', 'required_document_type', 'required_section', 'recall_number_match', 'lot_match'],
+        rank_score: 1.0477,
+        lexical_overlap_score: 0.0667,
+        lexical_overlap_terms: ['0277', '2024', 'class', 'recall'],
+      },
+      {
+        content:
+          'Per SOP-14, any Class I recall requires pharmacist sign-off before affected inventory is released for disposal or return-to-vendor processing.',
+        document_type: 'sop',
+        section: 'procedure',
+        similarity_score: 0.44,
+        source_path: 'data/rag/documents/sop/sop-14-recall-handling.md',
+        chunk_index: 2,
+        drug_name: null,
+        filter_level: 'document_type',
+        matched_identifiers: {},
+        rank_reasons: ['required_document_type'],
+        rank_score: 0.61,
+        lexical_overlap_score: 0.02,
+        lexical_overlap_terms: ['recall'],
+      },
+    ],
+    retrieval_context: {
+      event_type: 'recall',
+      normalized_drug_name: 'dexamethasone',
+      recall_number: 'D-0277-2024',
+      classification: 'class_i',
+    },
+    retrieval_plan: {
+      targets: [
+        { document_type: 'recall_notice', required: true, sections: ['recall_notice'], top_k: 5 },
+        { document_type: 'policy', required: true, sections: [], top_k: 5 },
+        { document_type: 'sop', required: true, sections: [], top_k: 5 },
+      ],
+    },
+    retrieval_trace: {
+      counts: { candidate_chunks: 24, deduped_chunks: 18, reranked_chunks: 18, selected_chunks: 2 },
+      filter_attempts: [
+        { target_document_type: 'recall_notice', level: 'strong_identifier_section', expr: 'recall_number == "D-0277-2024"', hit_count: 1, stopped_on_hits: true },
+      ],
+    },
   },
   'T-2379': {
     evidence_status: 'insufficient',
@@ -148,7 +204,49 @@ const MOCK_EVIDENCE: Record<string, EvidenceSnapshot> = {
     found_sources: ['sop'],
     missing_sources: ['policy'],
     weak_sources: ['sop'],
-    failure_reasons: ['low_coverage'],
+    failure_reasons: [
+      { reason: 'missing_required_document_type', document_type: 'policy' },
+      { reason: 'only_loose_filter_matched', document_type: 'sop', filter_levels: ['document_type'] },
+    ],
+    snapshot_type: 'workflow_evidence',
+    source_audit_log_id: 5793,
+    created_at: '2026-07-11T09:44:40.000000',
+    selected_chunks: [
+      {
+        content:
+          'General SOP guidance for drug shortage handling. This section does not reference midazolam specifically and was matched only on document type.',
+        document_type: 'sop',
+        section: 'general',
+        similarity_score: 0.31,
+        source_path: 'data/rag/documents/sop/sop-09-shortage-general.md',
+        chunk_index: 0,
+        drug_name: null,
+        filter_level: 'section',
+        matched_identifiers: {},
+        rank_reasons: ['required_document_type', 'fallback_penalty'],
+        rank_score: 0.22,
+        lexical_overlap_score: 0.0,
+        lexical_overlap_terms: [],
+      },
+    ],
+    retrieval_context: {
+      event_type: 'shortage',
+      normalized_drug_name: 'midazolam',
+      recall_number: null,
+      classification: null,
+    },
+    retrieval_plan: {
+      targets: [
+        { document_type: 'policy', required: true, sections: [], top_k: 5 },
+        { document_type: 'sop', required: true, sections: [], top_k: 5 },
+      ],
+    },
+    retrieval_trace: {
+      counts: { candidate_chunks: 9, deduped_chunks: 6, reranked_chunks: 6, selected_chunks: 1 },
+      filter_attempts: [
+        { target_document_type: 'policy', level: 'document_type', expr: 'document_type == "policy"', hit_count: 0, stopped_on_hits: false },
+      ],
+    },
   },
   'T-2355': {
     evidence_status: 'sufficient',
@@ -159,6 +257,13 @@ const MOCK_EVIDENCE: Record<string, EvidenceSnapshot> = {
     missing_sources: [],
     weak_sources: [],
     failure_reasons: [],
+    snapshot_type: 'workflow_evidence',
+    source_audit_log_id: 5711,
+    created_at: '2026-07-09T10:11:40.000000',
+    selected_chunks: [],
+    retrieval_context: {},
+    retrieval_plan: {},
+    retrieval_trace: {},
   },
   'T-2350': {
     evidence_status: 'sufficient',
@@ -169,6 +274,13 @@ const MOCK_EVIDENCE: Record<string, EvidenceSnapshot> = {
     missing_sources: [],
     weak_sources: ['sop'],
     failure_reasons: [],
+    snapshot_type: 'workflow_evidence',
+    source_audit_log_id: 5688,
+    created_at: '2026-07-07T11:00:40.000000',
+    selected_chunks: [],
+    retrieval_context: {},
+    retrieval_plan: {},
+    retrieval_trace: {},
   },
 }
 

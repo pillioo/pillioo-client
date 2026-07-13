@@ -4,26 +4,37 @@ import { Link, useParams } from 'react-router-dom'
 import AppShell from '../components/AppShell'
 import ChatDrawer from '../components/ChatDrawer'
 import EmptyState from '../components/EmptyState'
+import EvidenceCard from '../components/EvidenceCard'
 import StatusBadge from '../components/StatusBadge'
 import { useTicketPreview } from '../hooks/useTicketPreview'
 import {
+  buildSourceChecklist,
   formatAbsoluteDateTime,
+  formatChecklistStatus,
+  formatCitationsReadiness,
   formatClassification,
+  formatFailureReason,
   formatMatchType,
   formatRelativeTime,
   formatReviewType,
+  formatSourceCoverageLevel,
   formatVersionTag,
   formatWorkflowStage,
+  getChecklistStatusTone,
+  getEvidenceReadiness,
   getEvidenceStatusPresentation,
   getInventoryMatchPresentation,
   getRecommendedNextStep,
+  getSourceCoverageLevel,
   getStatusPresentation,
   getStepStatusPresentation,
+  sortChunksForDisplay,
 } from '../lib/ticketPresentation'
 import { isInventoryMatched } from '../api/types'
 import type {
   Classification,
   DraftReport,
+  EvidenceFailureReason,
   EvidenceSnapshot,
   InventoryImpact,
   ReportVersion,
@@ -263,84 +274,150 @@ function InventoryTab({ inventory }: { inventory: ReturnType<typeof useTicketPre
   )
 }
 
-// failure_reasons entries can be plain strings or structured objects
-// (e.g. { reason, document_type, filter_levels, ... }) depending on the
-// workflow step that produced them, so render defensively either way.
-function renderFailureReason(reason: unknown, index: number): ReactNode {
-  if (typeof reason === 'string') {
-    return <li key={index}>{reason}</li>
-  }
-  if (reason && typeof reason === 'object' && 'reason' in reason) {
-    const text = (reason as { reason?: unknown }).reason
-    return <li key={index}>{typeof text === 'string' ? text : JSON.stringify(reason)}</li>
-  }
-  return <li key={index}>{JSON.stringify(reason)}</li>
+// failure_reasons entries are normally structured objects (see
+// EvidenceFailureReason), but legacy tickets can still return plain
+// strings — formatFailureReason() normalizes either shape.
+function renderFailureReason(reason: string | EvidenceFailureReason, index: number): ReactNode {
+  const { text, context } = formatFailureReason(reason)
+  return (
+    <li key={index}>
+      {text}
+      {context && <span className="tw-muted"> — {context}</span>}
+    </li>
+  )
+}
+
+function SourceChecklist({ data }: { data: EvidenceSnapshot }) {
+  const entries = buildSourceChecklist(data)
+  if (entries.length === 0) return null
+
+  return (
+    <div className="tw-card">
+      <h2 className="tw-card-title">Source Checklist</h2>
+      <ul className="tw-evidence-checklist">
+        {entries.map((entry) => (
+          <li key={entry.documentType} className="tw-evidence-checklist-row">
+            <span className="tw-evidence-checklist-label">{entry.label}</span>
+            <StatusBadge tone={getChecklistStatusTone(entry.status)} label={formatChecklistStatus(entry.status)} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 function EvidenceTab({ evidence }: { evidence: ReturnType<typeof useTicketPreview>['evidence'] }) {
   if (evidence.kind === 'loading') return <p className="tw-status-text">Loading evidence…</p>
+
+  // A 404 from GET /tickets/{ticket_id}/evidence means no evidence snapshot
+  // has ever been produced for this ticket — distinct from a snapshot that
+  // exists but selected zero chunks (handled below as a normal ready state).
   if (evidence.kind === 'unavailable') {
-    return <EmptyState title="No evidence snapshot" description="This case has no evidence data yet." />
+    return (
+      <EmptyState
+        title="No evidence snapshot yet"
+        description="This case hasn't produced an evidence snapshot yet. Run or resume the workflow to retrieve evidence."
+      />
+    )
   }
+
   if (evidence.kind === 'error') {
     return <EmptyState title="Couldn't load evidence" description={evidence.message} />
   }
 
   const data: EvidenceSnapshot = evidence.data
-  const presentation = getEvidenceStatusPresentation(data.evidence_status)
+  const readiness = getEvidenceReadiness(data.evidence_status)
+  const coverageLevel = getSourceCoverageLevel(data)
+  const hasChunks = data.selected_chunks.length > 0
+  const hasRetrievalTrace =
+    Object.keys(data.retrieval_trace ?? {}).length > 0 ||
+    Object.keys(data.retrieval_plan ?? {}).length > 0 ||
+    Object.keys(data.retrieval_context ?? {}).length > 0
 
   return (
-    <div className="tw-tab-grid">
-      <div className="tw-card">
-        <div className="tw-card-head">
-          <h2 className="tw-card-title">Sufficiency</h2>
-          <StatusBadge {...presentation} />
+    <div className="tw-stack">
+      {/* 1. Evidence readiness: translated evidence_status / coverage_score / citations_ready */}
+      <div className={`tw-evidence-summary tw-evidence-summary-${readiness.tone}`}>
+        <div className="tw-evidence-summary-head">
+          <span className="tw-evidence-summary-label">Evidence readiness</span>
+          <StatusBadge {...readiness} />
         </div>
-        <MetaGrid>
-          <MetaItem
-            label="Coverage"
-            value={data.coverage_score !== null ? `${Math.round(data.coverage_score * 100)}%` : '—'}
-          />
-          <MetaItem
-            label="Citations ready"
-            value={data.citations_ready === null ? '—' : data.citations_ready ? 'Yes' : 'No'}
-          />
-        </MetaGrid>
-        {data.required_sources.length > 0 && (
-          <>
-            <p className="tw-tag-list-label">Required sources</p>
-            <TagList items={data.required_sources} tone="neutral" />
-          </>
-        )}
-        {data.found_sources.length > 0 && (
-          <>
-            <p className="tw-tag-list-label">Found sources</p>
-            <TagList items={data.found_sources} tone="neutral" />
-          </>
+        <div className="tw-evidence-summary-stats">
+          <div className="tw-evidence-stat">
+            <span className="tw-evidence-stat-label">Source coverage</span>
+            <span className="tw-evidence-stat-value">{formatSourceCoverageLevel(coverageLevel)}</span>
+          </div>
+          <div className="tw-evidence-stat">
+            <span className="tw-evidence-stat-label">Citations</span>
+            <span className="tw-evidence-stat-value">{formatCitationsReadiness(data.citations_ready)}</span>
+          </div>
+        </div>
+        {data.evidence_status === 'insufficient' && (
+          <p className="tw-evidence-summary-note">
+            This case needs additional evidence before it's ready for pharmacist review. This is a normal
+            workflow state — review the source checklist and evidence limitations below.
+          </p>
         )}
       </div>
 
-      {data.weak_sources.length > 0 && (
-        <div className="tw-card tw-card-warning">
-          <h2 className="tw-card-title">Weak Sources</h2>
-          <TagList items={data.weak_sources} tone="warning" />
-        </div>
-      )}
+      {/* 2. Source checklist: required/found/missing/weak sources, translated */}
+      <SourceChecklist data={data} />
 
-      {data.missing_sources.length > 0 && (
-        <div className="tw-card tw-card-danger">
-          <h2 className="tw-card-title">Missing Sources</h2>
-          <TagList items={data.missing_sources} tone="danger" />
-        </div>
-      )}
-
+      {/* Evidence limitations: failure_reasons, in plain language */}
       {data.failure_reasons.length > 0 && (
         <div className="tw-card">
-          <h2 className="tw-card-title">Failure Reasons</h2>
+          <h2 className="tw-card-title">Evidence Limitations</h2>
           <ul className="tw-plain-list">
             {data.failure_reasons.map((r, i) => renderFailureReason(r, i))}
           </ul>
         </div>
+      )}
+
+      {/* 3. Supporting evidence: selected_chunks as pharmacist-facing source cards */}
+      <div className="tw-evidence-sources">
+        <h2 className="tw-card-title">Supporting Evidence{hasChunks ? ` (${data.selected_chunks.length})` : ''}</h2>
+        {hasChunks ? (
+          <div className="tw-evidence-source-grid">
+            {sortChunksForDisplay(data.selected_chunks).map((chunk, i) => (
+              <EvidenceCard
+                key={`${chunk.source_path}-${chunk.chunk_index ?? i}`}
+                chunk={chunk}
+                requiredSources={data.required_sources}
+                weakSources={data.weak_sources}
+                failureReasons={data.failure_reasons}
+                primary={Object.keys(chunk.matched_identifiers ?? {}).length > 0}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            title="No sources selected"
+            description="An evidence snapshot exists for this case, but no source chunks were selected."
+          />
+        )}
+      </div>
+
+      {/* Snapshot-level retrieval diagnostics — kept out of the primary view.
+          Per-source technical details live inside each EvidenceCard instead,
+          so this only covers trace/plan/context, not chunk data again. */}
+      {hasRetrievalTrace && (
+        <details className="tw-details tw-evidence-debug">
+          <summary>Technical retrieval trace</summary>
+          <div className="tw-evidence-debug-body">
+            <details className="tw-evidence-debug-raw">
+              <summary>Retrieval trace (raw)</summary>
+              <pre className="tw-evidence-debug-pre">{JSON.stringify(data.retrieval_trace, null, 2)}</pre>
+            </details>
+            <details className="tw-evidence-debug-raw">
+              <summary>Retrieval plan (raw)</summary>
+              <pre className="tw-evidence-debug-pre">{JSON.stringify(data.retrieval_plan, null, 2)}</pre>
+            </details>
+            <details className="tw-evidence-debug-raw">
+              <summary>Retrieval context (raw)</summary>
+              <pre className="tw-evidence-debug-pre">{JSON.stringify(data.retrieval_context, null, 2)}</pre>
+            </details>
+          </div>
+        </details>
       )}
     </div>
   )
