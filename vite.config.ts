@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const BACKEND_URL = 'http://localhost:8000'
+const BACKEND_URL = 'http://43.201.105.86:8000'
 
 // Proxying these paths avoids CORS in local dev: the backend currently only
 // allows http://localhost:3000 (see pillioo/backend/app/main.py), not the

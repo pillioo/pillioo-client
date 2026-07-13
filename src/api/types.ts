@@ -305,3 +305,35 @@ export interface TicketListFilters {
   offset?: number
 }
 
+export interface ApprovalRequest {
+  reviewer: string
+  comment?: string
+}
+
+export interface ReviseRequest {
+  reviewer: string
+  revised_draft: string
+  comment?: string
+}
+
+export interface ReviseWithLlmRequest {
+  reviewer: string
+  reviewer_comment: string
+}
+
+// The backend's OpenAPI doc for GET /tickets/{id}/review only documents the
+// response as a bare "string" schema, meaning the actual return shape isn't
+// modeled yet. Keep this loose and defensive rather than guessing field
+// names — log the raw response once against a real ticket and tighten this
+// type from actual data, not from assumptions.
+export interface ReviewPayload {
+  ticket_id: string
+  status: TicketStatus
+  review_type: ReviewType | null
+  [key: string]: unknown
+}
+
+// Approval endpoints return "string" in the OpenAPI doc as well (no modeled
+// success schema). Treat the response as unknown and only rely on HTTP
+// status for success/failure — do not assume specific response fields.
+export type ApprovalActionResult = unknown

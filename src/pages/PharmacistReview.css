@@ -1,0 +1,237 @@
+.pr-workspace {
+  flex: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pr-back {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.pr-back:hover {
+  color: var(--color-text-secondary);
+}
+
+.pr-status-text {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.pr-error {
+  color: var(--color-danger);
+}
+
+.pr-muted {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.pr-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pr-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pr-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.pr-id {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.pr-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .pr-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pr-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pr-card {
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pr-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.pr-report-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pr-version-tag {
+  align-self: flex-start;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+}
+
+.pr-report-summary {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+.pr-report-text {
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.pr-subheading {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 4px 0 0;
+}
+
+.pr-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.pr-action-card {
+  gap: 16px;
+}
+
+.pr-mode-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pr-mode-tab {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.pr-mode-tab:hover {
+  color: var(--color-text-primary);
+}
+
+.pr-mode-tab.is-selected {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border-color: var(--color-border-strong);
+}
+
+.pr-action-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pr-textarea {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.pr-textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-primary-focus);
+}
+
+.pr-action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.pr-btn-primary {
+  height: 40px;
+  padding: 0 16px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.pr-btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.pr-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pr-btn-secondary {
+  height: 40px;
+  padding: 0 16px;
+  background: var(--color-surface-1);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.pr-decided-note {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
