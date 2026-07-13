@@ -35,3 +35,16 @@ export async function apiGet<T>(path: string, params?: Record<string, QueryValue
   }
   return response.json() as Promise<T>
 }
+
+export async function apiPost<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!response.ok) {
+    const responseBody = await response.text().catch(() => '')
+    throw new ApiError(response.status, responseBody || `Request to ${path} failed with status ${response.status}`)
+  }
+  return response.json() as Promise<T>
+}
