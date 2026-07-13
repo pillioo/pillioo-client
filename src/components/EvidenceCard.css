@@ -1,0 +1,347 @@
+.evidence-card {
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Exact identifier-matched evidence gets a border accent, not a tinted
+   background — status color stays reserved for small badges/borders. */
+.evidence-card-primary {
+  border-left: 3px solid var(--color-secondary);
+}
+
+/* ── 1. Header ───────────────────────────────────────────────────────── */
+
+.evidence-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.evidence-card-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.evidence-card-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.evidence-card-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px 3px 7px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.evidence-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.evidence-card-meta-line {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin: 0;
+  word-break: break-word;
+}
+
+/* Shared status-tone coloring, reused by the header badge and the
+   identifier-match panel status line. */
+.evidence-card-tone-success {
+  color: var(--color-success);
+}
+
+.evidence-card-status-badge.evidence-card-tone-success {
+  background: var(--color-success-soft);
+}
+
+.evidence-card-tone-warning {
+  color: var(--color-warning);
+}
+
+.evidence-card-status-badge.evidence-card-tone-warning {
+  background: var(--color-warning-soft);
+}
+
+.evidence-card-tone-positive {
+  color: var(--color-secondary);
+}
+
+.evidence-card-tone-neutral {
+  color: var(--color-text-secondary);
+}
+
+/* ── Shared panel heading (icon + small caps label) ─────────────────── */
+
+.evidence-card-panel-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 6px;
+}
+
+/* ── 2. Identifier match panel ──────────────────────────────────────── */
+
+.evidence-card-panel {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}
+
+.evidence-card-panel-status {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 2px;
+}
+
+.evidence-card-panel-detail {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+  margin: 0;
+  word-break: break-word;
+}
+
+/* ── 3. Supporting excerpt ──────────────────────────────────────────── */
+
+/* Strongest content emphasis on the card: a subtle inset block with a left
+   border, distinct from the neutral card background and from metadata. */
+.evidence-card-excerpt-panel {
+  padding: 12px 14px;
+  border-left: 3px solid var(--color-border-strong);
+  background: var(--color-surface-2);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evidence-card-metadata-grid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+  row-gap: 6px 10px;
+}
+
+.evidence-card-metadata-row {
+  display: grid;
+  grid-template-columns: minmax(90px, max-content) 1fr;
+  column-gap: 10px;
+  align-items: baseline;
+}
+
+.evidence-card-metadata-row dt {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.evidence-card-metadata-row dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  word-break: break-word;
+}
+
+@media (max-width: 480px) {
+  .evidence-card-metadata-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.evidence-card-content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.evidence-card-section-heading {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* The evidence excerpt itself: the highest-emphasis body text on the card. */
+.evidence-card-section-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.evidence-card-section-body.is-clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.evidence-card-toggle {
+  align-self: flex-start;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-secondary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-focus);
+    outline-offset: 2px;
+  }
+}
+
+/* ── 4. Technical details ───────────────────────────────────────────── */
+
+.evidence-card-details {
+  border-top: 1px solid var(--color-border);
+  padding-top: 10px;
+
+  summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  &[open] .evidence-card-details-chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.evidence-card-details-chevron {
+  transition: transform 0.15s ease;
+}
+
+.evidence-card-details-grid {
+  margin: 10px 0 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 16px;
+  row-gap: 6px;
+  align-items: baseline;
+}
+
+.evidence-card-details-grid dt {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.evidence-card-details-grid dd {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  word-break: break-word;
+}
+
+@media (max-width: 420px) {
+  .evidence-card-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .evidence-card-details-grid dt {
+    white-space: normal;
+  }
+}
+
+.evidence-card-details-block {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.evidence-card-details-block-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.evidence-card-details-block-value {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  word-break: break-word;
+}
+
+.evidence-card-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.evidence-card-raw {
+  margin-top: 8px;
+
+  summary {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  pre {
+    margin: 8px 0 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    background: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    max-height: 260px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}
