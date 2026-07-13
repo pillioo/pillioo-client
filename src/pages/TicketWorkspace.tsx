@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import AppShell from '../components/AppShell'
+import ChatDrawer from '../components/ChatDrawer'
 import EmptyState from '../components/EmptyState'
 import StatusBadge from '../components/StatusBadge'
 import { useTicketPreview } from '../hooks/useTicketPreview'
@@ -595,7 +596,10 @@ function WorkspaceHeader({ detail }: { detail: TicketDetail }) {
   const status = getStatusPresentation(detail.status)
   return (
     <div className="ticket-workspace-header">
-      <h1 className="ticket-workspace-name">{detail.drug_name}</h1>
+      <div className="ticket-workspace-header-row">
+        <h1 className="ticket-workspace-name">{detail.drug_name}</h1>
+        <ChatDrawer ticketId={detail.ticket_id} />
+      </div>
       <div className="ticket-workspace-meta-row">
         <span className="ticket-workspace-id" title={detail.ticket_id}>
           {detail.ticket_id}
