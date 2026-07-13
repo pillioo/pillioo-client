@@ -44,6 +44,13 @@
   gap: 8px;
 }
 
+.ticket-workspace-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .ticket-workspace-name {
   font-size: 24px;
   font-weight: 600;

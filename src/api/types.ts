@@ -94,9 +94,11 @@ export interface InventoryImpactUnmatched {
   message: string
 }
 
+// Note: the matched-case response has no root-level `matched` field at all —
+// only `match_result.matched` — unlike the unmatched case, which does. Use
+// isInventoryMatched() below to narrow instead of reading `.matched` directly.
 export interface InventoryImpactMatched {
   ticket_id: string
-  matched: true
   match_result: {
     matched: boolean
     match_type: 'exact_ndc_match' | 'fuzzy_name_match' | 'no_match'
@@ -120,8 +122,8 @@ export interface InventoryImpactMatched {
 
 export type InventoryImpact = InventoryImpactMatched | InventoryImpactUnmatched
 
-export function isInventoryMatched(data: InventoryImpact): data is InventoryImpactMatched {
-  return data.matched === true
+export function isInventoryMatched(inventory: InventoryImpact): inventory is InventoryImpactMatched {
+  return 'match_result' in inventory
 }
 
 export interface TicketListFilters {
@@ -209,4 +211,53 @@ export interface ReportVersion {
   source_version: string | null
   created_at: string
   updated_at: string | null
+
 }
+
+// answer_support_level: 'state_only' (answered from ticket state, no
+// retrieval needed) | 'none' (retrieval-required but no sources found) |
+// 'partial' | 'full'. Treat 'none'/'partial' as weak grounding — see
+// docs/API_FLOW.md ch.7.
+export type ChatAnswerSupportLevel = 'state_only' | 'none' | 'partial' | 'full' | (string & {})
+
+export interface ChatCitation {
+  source: string
+  section: string
+  score: number
+}
+
+// Response shape for POST /chat/{ticket_id}.
+export interface ChatResponse {
+  session_id: string
+  answer: string
+  sources: ChatCitation[]
+  intent: string | null
+  standalone_query: string | null
+  answer_mode: string | null
+  target_profile: string | null
+  evidence_status: string | null
+  retrieved_evidence_scope: string | null
+  answer_support_level: ChatAnswerSupportLevel | null
+}
+
+// Response item shape for GET /chat/{ticket_id}/history.
+export interface ChatMessage {
+  ticket_id: string
+  session_id: string | null
+  role: 'user' | 'assistant'
+  content: string
+  retrieved_sources: ChatCitation[]
+  created_at: string
+  status: 'succeeded' | 'failed'
+}
+
+export interface TicketListFilters {
+  status?: TicketStatus
+  review_type?: string
+  priority?: Priority
+  recall_number?: string
+  q?: string
+  limit?: number
+  offset?: number
+}
+
