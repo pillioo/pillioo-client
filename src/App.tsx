@@ -4,6 +4,7 @@ import SafetyInbox from './pages/SafetyInbox'
 import TicketWorkspace from './pages/TicketWorkspace'
 import PharmacistReview from './pages/PharmacistReview'
 import EventUpload from './pages/EventUpload'
+import UserGuide from './pages/UserGuide'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/app/tickets/:ticketId" element={<TicketWorkspace />} />
         <Route path="/app/tickets/:ticketId/review" element={<PharmacistReview />} />
         <Route path="/app/events/upload" element={<EventUpload />} />
+        <Route path="/app/guide" element={<UserGuide />} />
       </Routes>
     </BrowserRouter>
   )
