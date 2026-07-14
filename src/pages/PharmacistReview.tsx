@@ -83,15 +83,15 @@ function PharmacistReview() {
     setSubmitError(null)
 
     if (mode === 'reject' && comment.trim() === '') {
-      setSubmitError('반려 사유(comment)는 필수입니다.')
+      setSubmitError('A comment is required for all rejections.')
       return
     }
     if (mode === 'revise' && revisedDraft.trim() === '') {
-      setSubmitError('수정한 초안 내용을 입력해주세요.')
+      setSubmitError('Please enter the revised draft.')
       return
     }
     if (mode === 'revise-llm' && comment.trim() === '') {
-      setSubmitError('LLM에게 전달할 코멘트를 입력해주세요.')
+      setSubmitError('Please enter the comments for the LLM.')
       return
     }
 
@@ -111,7 +111,7 @@ function PharmacistReview() {
       setComment('')
       setRevisedDraft('')
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : '요청 처리 중 오류가 발생했습니다.')
+      setSubmitError(err instanceof Error ? err.message : 'An error occurred while processing your request.')
     } finally {
       setSubmitting(false)
     }
@@ -132,7 +132,7 @@ function PharmacistReview() {
           ← Back to Workspace
         </Link>
         <p className="pr-status-text">
-          이 케이스는 아직 검토 준비가 되지 않았습니다  (review_type이 아직 결정되지 않았거나 워크플로우가 실패한 상태일 수 있어요 )
+          This case is not ready for review yet.
         </p>
       </div>
     )
@@ -141,7 +141,7 @@ function PharmacistReview() {
   if (ticket.kind === 'error') {
     return (
       <div className="pr-workspace">
-        <p className="pr-status-text pr-error">케이스를 불러오지 못했습니다  {ticket.message}</p>
+        <p className="pr-status-text pr-error">Failed to load the case.  {ticket.message}</p>
       </div>
     )
   }
@@ -168,8 +168,8 @@ function PharmacistReview() {
           <section className="pr-card">
             <h2 className="pr-card-title">Draft / Report</h2>
             {reportVersions.kind === 'loading' && <p className="pr-muted">Loading report…</p>}
-            {reportVersions.kind === 'unavailable' && <p className="pr-muted">아직 생성된 보고서가 없습니다 </p>}
-            {reportVersions.kind === 'error' && <p className="pr-error">보고서를 불러오지 못했습니다 </p>}
+            {reportVersions.kind === 'unavailable' && <p className="pr-muted">No report has been generated yet. </p>}
+            {reportVersions.kind === 'error' && <p className="pr-error">Failed to load the report. </p>}
             {latestReport && (
               <div className="pr-report-body">
                 <span className="pr-version-tag">{latestReport.version_tag}</span>
@@ -221,10 +221,10 @@ function PharmacistReview() {
           <section className="pr-card">
             <h2 className="pr-card-title">Supporting Evidence</h2>
             {evidence.kind === 'loading' && <p className="pr-muted">Loading evidence…</p>}
-            {evidence.kind === 'unavailable' && <p className="pr-muted">근거 정보가 아직 없습니다 </p>}
-            {evidence.kind === 'error' && <p className="pr-error">근거를 불러오지 못했습니다 </p>}
+            {evidence.kind === 'unavailable' && <p className="pr-muted">No supporting information is available yet. </p>}
+            {evidence.kind === 'error' && <p className="pr-error">Failed to load the supporting information. </p>}
             {evidence.kind === 'ready' && evidence.data.selected_chunks.length === 0 && (
-              <p className="pr-muted">선택된 근거 chunk가 없습니다 </p>
+              <p className="pr-muted">No supporting chunk is selected. </p>
             )}
             {evidence.kind === 'ready' &&
               evidence.data.selected_chunks.map((chunk, i) => (
@@ -245,7 +245,7 @@ function PharmacistReview() {
         <h2 className="pr-card-title">Reviewer Decision</h2>
 
         {alreadyDecided ? (
-          <p className="pr-status-text">이 케이스는 이미 결정되었습니다  (읽기 전용)</p>
+          <p className="pr-status-text">This case has already been decided (read-only)</p>
         ) : (
           <>
             <div className="pr-mode-tabs">
@@ -268,7 +268,7 @@ function PharmacistReview() {
                 {mode === 'revise' && (
                   <textarea
                     className="pr-textarea"
-                    placeholder="수정한 초안 전체 내용을 입력하세요"
+                    placeholder="Enter the full revised draft"
                     value={revisedDraft}
                     onChange={(e) => setRevisedDraft(e.target.value)}
                     rows={8}
@@ -278,10 +278,10 @@ function PharmacistReview() {
                   className="pr-textarea"
                   placeholder={
                     mode === 'reject'
-                      ? '반려 사유를 입력하세요 (필수)'
+                      ? 'Enter the reason for rejection (required)'
                       : mode === 'revise-llm'
-                        ? 'LLM에게 반영할 코멘트를 입력하세요 (필수)'
-                        : '코멘트 (선택)'
+                        ? 'Enter instructions for the LLM (required)'
+                        : 'Comment (optional)'
                   }
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
@@ -303,9 +303,9 @@ function PharmacistReview() {
 
         {decided && (
           <div className="pr-decided-note">
-            <p>처리되었습니다 </p>
+            <p>Submitted successfully</p>
             <button className="pr-btn-secondary" onClick={() => navigate(`/app/tickets/${ticketId}`)}>
-              워크스페이스로 돌아가기
+              Back to Workspace
             </button>
           </div>
         )}
