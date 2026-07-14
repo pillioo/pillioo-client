@@ -14,9 +14,9 @@ function Sidebar() {
         <Link to="/app" className={`sidebar-nav-item ${isInboxActive ? 'is-active' : ''}`}>
           Inbox
         </Link>
-        <span className="sidebar-nav-item is-disabled" aria-disabled="true" title="Not available yet">
+        {/* <span className="sidebar-nav-item is-disabled" aria-disabled="true" title="Not available yet">
           Reports
-        </span>
+        </span> */}
       </nav>
     </aside>
   )
