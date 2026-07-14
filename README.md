@@ -1,75 +1,111 @@
-# React + TypeScript + Vite
+# PILLIOO Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An AI-powered pharmaceutical recall management platform that helps pharmacists quickly identify drug recalls, review AI-generated reports, and manage pharmaceutical safety workflows.
 
-Currently, two official plugins are available:
+AI 기반 의약품 리콜 관리 플랫폼으로, 약사가 의약품 리콜 정보를 효율적으로 확인하고 AI가 생성한 보고서를 검토할 수 있도록 지원합니다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+# Overview | 프로젝트 소개
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## English
 
-## Expanding the ESLint configuration
+PILLIOO Frontend provides an intuitive web interface for pharmacists and reviewers to interact with AI-generated pharmaceutical recall reports.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The application enables users to search recall information, review AI-generated reports, approve or revise reports, and monitor workflow progress through a unified dashboard.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Its goal is to reduce repetitive manual work while improving the efficiency and reliability of pharmaceutical recall management.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 한국어
 
+PILLIOO Frontend는 AI가 생성한 의약품 리콜 보고서를 약사가 효율적으로 검토할 수 있도록 설계된 웹 애플리케이션입니다.
+
+사용자는 리콜 정보를 검색하고, AI가 생성한 보고서를 검토하며, 승인·수정·반려를 수행할 수 있습니다. 또한 Dashboard를 통해 전체 Workflow 진행 상황을 확인할 수 있습니다.
+
+PILLIOO는 반복적인 업무를 줄이고 의약품 리콜 대응 업무의 효율성과 신뢰성을 높이는 것을 목표로 합니다.
+
+---
+
+# Features | 주요 기능
+
+- Search pharmaceutical recall information
+- AI-generated report review
+- Report approval, revision, and rejection
+- Workflow dashboard
+- Report version history
+- Responsive user interface
+
+---
+
+# Tech Stack
+
+- React
+- TypeScript
+- Vite
+- React Router
+- Axios
+- CSS
+
+---
+
+# Project Structure
+
+```text
+src/
+├── api/
+├── assets/
+├── components/
+├── hooks/
+├── pages/
+├── styles/
+├── types/
+└── utils/
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+# Getting Started
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Install dependencies
 
+```bash
+npm install
 ```
+
+Run development server
+
+```bash
+npm run dev
+```
+
+Build production
+
+```bash
+npm run build
+```
+
+---
+
+# Deployment
+
+Frontend is deployed on Vercel.
+
+https://pillioo-client.vercel.app
+
+---
+
+# Team
+
+| Name | Role |
+|------|------|
+| Jihee Bang | Backend · Infrastructure |
+| Jimin Kim | Frontend |
+| Yoon Kong | AI · Backend |
+
+---
+
+# License
+
+This project was developed for academic and hackathon purposes.
