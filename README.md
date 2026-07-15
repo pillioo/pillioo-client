@@ -1,4 +1,4 @@
-[← Back to Pillioo Overview](../README.md)
+[← Back to Pillioo Overview](https://github.com/pillioo#readme)
 # Pillioo Frontend
 ## Overview
 
