@@ -1,10 +1,11 @@
+[← Back to Pillioo Overview](../README.md)
 # Pillioo Frontend
-
 ## Overview
 
 Pillioo Frontend는 의약품 안전 이벤트와 티켓 처리 과정을 화면에서 확인하고, 약사 검토 업무를 수행할 수 있도록 제공하는 web client입니다.
 Safety Inbox, Ticket Workspace, Pharmacist Review, Evidence, Report, History, ticket-scoped chat 화면을 통해 백엔드 워크플로우 결과를 사용자에게 제공합니다.
 
+---
 
 Pillioo Frontend is a web client that allows users to review pharmaceutical safety events, ticket workflows, evidence, reports, and pharmacist review actions through a unified interface.
 Safety Inbox, Ticket Workspace, Pharmacist Review, Evidence, Report, History, and ticket-scoped chat present backend workflow results in a user-friendly form.
