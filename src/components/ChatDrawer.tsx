@@ -1,8 +1,8 @@
 import type { FormEvent } from 'react'
 import { useState } from 'react'
-import { getChatHistory, submitChatQuery } from '../api/chat'
+import { submitChatQuery } from '../api/chat'
 import { ApiError } from '../api/client'
-import type { ChatCitation, ChatMessage } from '../api/types'
+import type { ChatCitation } from '../api/types'
 import './ChatDrawer.css'
 
 interface ChatDrawerProps {
@@ -18,23 +18,10 @@ interface UIMessage {
   supportLevel: string | null
 }
 
-type HistoryState = 'idle' | 'loading' | 'ready' | 'error'
-
 let messageKeySeq = 0
 function nextMessageKey(): string {
   messageKeySeq += 1
   return `m${messageKeySeq}`
-}
-
-function toUIMessage(message: ChatMessage): UIMessage {
-  return {
-    key: nextMessageKey(),
-    role: message.role,
-    content: message.content,
-    sources: message.retrieved_sources,
-    status: message.status,
-    supportLevel: null,
-  }
 }
 
 function isLowSupport(level: string | null): boolean {
@@ -82,12 +69,13 @@ function MessageBubble({ message }: { message: UIMessage }) {
   )
 }
 
-// Ticket-scoped chat. Relies on the parent Ticket Workspace being remounted
-// with key={ticketId} (see useTicketPreview.ts) so session/message state
-// always starts fresh when the ticket changes, instead of tracking it here.
+// Ticket-scoped chat. Deliberately does not fetch or render prior chat
+// history on open (see docs: frontend-only chat session exposure control) --
+// only messages sent during the current browser session are shown. Relies
+// on the parent Ticket Workspace being remounted with key={ticketId} (see
+// useTicketPreview.ts) so message/session state starts fresh per ticket.
 function ChatDrawer({ ticketId }: ChatDrawerProps) {
   const [open, setOpen] = useState(false)
-  const [historyState, setHistoryState] = useState<HistoryState>('idle')
   const [messages, setMessages] = useState<UIMessage[]>([])
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [draft, setDraft] = useState('')
@@ -95,18 +83,6 @@ function ChatDrawer({ ticketId }: ChatDrawerProps) {
 
   function handleOpen() {
     setOpen(true)
-    if (historyState !== 'idle') return
-    setHistoryState('loading')
-    getChatHistory(ticketId)
-      .then((history) => {
-        setMessages(history.map(toUIMessage))
-        const last = history[history.length - 1]
-        if (last?.session_id) setSessionId(last.session_id)
-        setHistoryState('ready')
-      })
-      .catch(() => {
-        setHistoryState('error')
-      })
   }
 
   function handleSubmit(event: FormEvent) {
@@ -164,13 +140,7 @@ function ChatDrawer({ ticketId }: ChatDrawerProps) {
             </div>
 
             <div className="chat-drawer-body">
-              {historyState === 'loading' && messages.length === 0 && (
-                <p className="chat-status-text">Loading conversation…</p>
-              )}
-              {historyState === 'error' && (
-                <p className="chat-status-text chat-status-text-danger">Couldn't load previous messages.</p>
-              )}
-              {historyState !== 'loading' && messages.length === 0 && (
+              {messages.length === 0 && (
                 <p className="chat-status-text">Ask a question about this case's evidence or status.</p>
               )}
               {messages.map((message) => (
